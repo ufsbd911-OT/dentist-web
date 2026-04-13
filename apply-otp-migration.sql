@@ -42,7 +42,7 @@ CREATE POLICY "Allow OTP updates" ON public.otp_password_reset
     FOR UPDATE USING (true);
 
 -- Function to generate OTP
-CREATE OR REPLACE FUNCTION generate_password_reset_otp(user_email TEXT)
+CREATE OR REPLACE FUNCTION generate_password_reset_otp(p_user_email TEXT)
 RETURNS JSON AS $$
 DECLARE
     user_record RECORD;
@@ -52,7 +52,7 @@ BEGIN
     -- Check if user exists
     SELECT * INTO user_record 
     FROM auth.users 
-    WHERE email = user_email;
+    WHERE email = p_user_email;
     
     IF NOT FOUND THEN
         RETURN json_build_object(
@@ -64,7 +64,7 @@ BEGIN
     -- Check for existing valid OTP (within last 10 minutes)
     SELECT * INTO existing_otp
     FROM public.otp_password_reset
-    WHERE user_email = user_email
+    WHERE otp_password_reset.user_email = p_user_email
     AND expires_at > NOW()
     AND used = false
     ORDER BY created_at DESC
@@ -84,13 +84,13 @@ BEGIN
     -- Invalidate any existing OTPs for this user
     UPDATE public.otp_password_reset 
     SET used = true, used_at = NOW()
-    WHERE user_email = user_email 
+    WHERE otp_password_reset.user_email = p_user_email 
     AND used = false;
     
     -- Insert new OTP record
     INSERT INTO public.otp_password_reset (
         user_id,
-        user_email,
+        p_user_email,
         otp_code,
         expires_at
     ) VALUES (
@@ -105,7 +105,7 @@ BEGIN
         'success', true,
         'message', 'Code OTP généré avec succès',
         'otp_code', otp_code,
-        'user_email', user_email,
+        'user_email', p_user_email,
         'expires_at', (NOW() + INTERVAL '10 minutes')::text
     );
     
@@ -120,9 +120,9 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Function to verify OTP and reset password
 CREATE OR REPLACE FUNCTION verify_otp_and_reset_password(
-    user_email TEXT, 
-    otp_code TEXT, 
-    new_password TEXT
+    p_user_email TEXT, 
+    p_otp_code TEXT, 
+    p_new_password TEXT
 )
 RETURNS JSON AS $$
 DECLARE
@@ -132,8 +132,8 @@ BEGIN
     -- Find valid OTP record
     SELECT * INTO otp_record
     FROM public.otp_password_reset
-    WHERE user_email = verify_otp_and_reset_password.user_email
-    AND otp_code = verify_otp_and_reset_password.otp_code
+    WHERE otp_password_reset.user_email = p_user_email
+    AND otp_password_reset.otp_code = p_otp_code
     AND expires_at > NOW()
     AND used = false
     ORDER BY created_at DESC
@@ -143,7 +143,7 @@ BEGIN
         -- Increment attempts for any existing OTP
         UPDATE public.otp_password_reset 
         SET attempts = attempts + 1
-        WHERE user_email = verify_otp_and_reset_password.user_email
+        WHERE otp_password_reset.user_email = p_user_email
         AND expires_at > NOW()
         AND used = false;
         
@@ -169,7 +169,7 @@ BEGIN
     -- Get user record
     SELECT * INTO user_record
     FROM auth.users
-    WHERE email = user_email;
+    WHERE email = p_user_email;
     
     IF NOT FOUND THEN
         RETURN json_build_object(
@@ -180,9 +180,9 @@ BEGIN
     
     -- Update user password
     UPDATE auth.users 
-    SET encrypted_password = crypt(new_password, gen_salt('bf')),
+    SET encrypted_password = crypt(p_new_password, gen_salt('bf')),
         updated_at = NOW()
-    WHERE email = user_email;
+    WHERE email = p_user_email;
     
     -- Mark OTP as used
     UPDATE public.otp_password_reset 
@@ -204,7 +204,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Function to verify OTP only (without password reset)
-CREATE OR REPLACE FUNCTION verify_otp_code(user_email TEXT, otp_code TEXT)
+CREATE OR REPLACE FUNCTION verify_otp_code(p_user_email TEXT, p_otp_code TEXT)
 RETURNS JSON AS $$
 DECLARE
     otp_record RECORD;
@@ -212,8 +212,8 @@ BEGIN
     -- Find valid OTP record
     SELECT * INTO otp_record
     FROM public.otp_password_reset
-    WHERE user_email = verify_otp_code.user_email
-    AND otp_code = verify_otp_code.otp_code
+    WHERE otp_password_reset.user_email = p_user_email
+    AND otp_password_reset.otp_code = p_otp_code
     AND expires_at > NOW()
     AND used = false
     ORDER BY created_at DESC
@@ -223,7 +223,7 @@ BEGIN
         -- Increment attempts for any existing OTP
         UPDATE public.otp_password_reset 
         SET attempts = attempts + 1
-        WHERE user_email = verify_otp_code.user_email
+        WHERE otp_password_reset.user_email = p_user_email
         AND expires_at > NOW()
         AND used = false;
         

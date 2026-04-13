@@ -1,9 +1,13 @@
 import { serve } from 'https://deno.land/std@0.192.0/http/server.ts'
 import { Resend } from 'npm:resend'
+import { corsHeaders, handleCors } from '../_shared/cors.ts'
 
 const resend = new Resend('re_PKY25c41_AZLTLYzknWWNygBm9eacocSt')
 
 serve(async (req) => {
+  const corsResponse = handleCors(req)
+  if (corsResponse) return corsResponse
+
   try {
     const { email, resetLink } = await req.json()
 
@@ -13,7 +17,7 @@ serve(async (req) => {
         error: 'Email is required' 
       }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
       })
     }
 
@@ -23,7 +27,7 @@ serve(async (req) => {
         error: 'Reset link is required' 
       }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
       })
     }
 
@@ -88,7 +92,7 @@ serve(async (req) => {
         details: error.message 
       }), {
         status: 500,
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
       })
     }
 
@@ -100,7 +104,7 @@ serve(async (req) => {
       emailId: data?.id 
     }), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' }
+      headers: corsHeaders
     })
   } catch (err) {
     console.error('Unexpected error:', err)
@@ -110,7 +114,7 @@ serve(async (req) => {
       details: err.message 
     }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' }
+      headers: corsHeaders
     })
   }
 })

@@ -8,6 +8,7 @@ import { toast } from '@/hooks/use-toast';
 import { AlertCircle, RefreshCw, Shield, Clock } from 'lucide-react';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import { supabase } from '@/integrations/supabase/client';
+import { requestOtpPasswordReset } from '@/lib/otp-password-reset';
 
 export default function VerifyOTP() {
   const navigate = useNavigate();
@@ -116,16 +117,7 @@ export default function VerifyOTP() {
     setError(null);
 
     try {
-      const response = await fetch('https://cmcfeiskfdbsefzqywbk.supabase.co/functions/v1/otp-password-reset', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNtY2ZlaXNrZmRic2VmenF5d2JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIwOTAwMzIsImV4cCI6MjA2NzY2NjAzMn0.xVUK-YzeIWDMmunYQj86hAsWja6nh_iDAVs2ViAspjU'
-        },
-        body: JSON.stringify({ email })
-      });
-
-      const result = await response.json();
+      const result = await requestOtpPasswordReset(email);
 
       if (!result.success) {
         setError(result.error || 'Erreur lors du renvoi du code OTP.');

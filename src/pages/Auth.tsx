@@ -118,8 +118,7 @@ export default function Auth() {
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Redirect to simple OTP reset page
-    window.location.href = '/simple-otp-reset';
+    window.location.href = '/reset-password-email';
   };
 
   // Show loading state while auth is initializing

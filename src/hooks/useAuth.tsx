@@ -79,6 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(false); // Start with false for instant UI
   const [error, setError] = useState<string | null>(null);
   const [isSupabaseAvailable, setIsSupabaseAvailable] = useState(true);
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
 
 
@@ -123,14 +124,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     let isMounted = true;
-    let authSubscription: any = null;
-          setError('Database connection issue. Some features may be limited.');
+    let authSubscription: { unsubscribe: () => void } | null = null;
 
 
     // Setup auth listener with role fetching
     const setupAuthListener = async () => {
-      authSubscription = supabase.auth.onAuthStateChange(async (event, session) => {
+      const { data } = supabase.auth.onAuthStateChange(async (_event, session) => {
         if (!isMounted) return;
+
+        if (isSigningOut) {
+          setSession(null);
+          setUser(null);
+          setUserRole(null);
+          setLoading(false);
+          return;
+        }
         
         if (session?.user) {
           // Clear any existing errors since we're accepting the session
@@ -153,6 +161,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         
         setLoading(false);
       });
+      authSubscription = data.subscription;
       
       // Initial session check
       const { data: { session } } = await supabase.auth.getSession();
@@ -174,11 +183,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     return () => {
       isMounted = false;
-      if (authSubscription && typeof authSubscription.unsubscribe === 'function') {
+      if (authSubscription) {
         authSubscription.unsubscribe();
       }
     };
-  }, []);
+  }, [isSigningOut]);
 
   const signIn = async (email: string, password: string) => {
     if (!isSupabaseAvailable) {
@@ -262,30 +271,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setLoading(true);
       setError(null);
+      setIsSigningOut(true);
       
       console.log('🚪 Starting logout process...');
-      
-      // Clear state first
+
+      const { error } = await supabase.auth.signOut({ scope: 'local' });
+
+      if (error) {
+        console.error('❌ Logout error:', error);
+      }
+
+      const storageKeysToClear = Object.keys(localStorage).filter((key) =>
+        key.startsWith('sb-') || key.includes('supabase') || key.includes('auth-token')
+      );
+
+      storageKeysToClear.forEach((key) => localStorage.removeItem(key));
+
       setUser(null);
       setSession(null);
       setUserRole(null);
-      
-      // Then sign out from Supabase
-      const { error } = await supabase.auth.signOut();
-      
-      if (error) {
-        console.error('❌ Logout error:', error);
-        // Even if there's an error, continue with logout
-      } else {
-        console.log('✅ Logout successful');
-      }
+
+      console.log('✅ Logout completed');
       
       toast({
         title: "Déconnexion réussie",
         description: "À bientôt !",
       });
       
-      // Redirect after a small delay to ensure state is cleared
       setTimeout(() => {
         window.location.href = '/';
       }, 500);
@@ -297,6 +309,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(null);
       setSession(null);
       setUserRole(null);
+
+      const storageKeysToClear = Object.keys(localStorage).filter((key) =>
+        key.startsWith('sb-') || key.includes('supabase') || key.includes('auth-token')
+      );
+
+      storageKeysToClear.forEach((key) => localStorage.removeItem(key));
       
       const errorMessage = error?.message || 'Échec de la déconnexion. Veuillez réessayer.';
       setError(errorMessage);
@@ -314,6 +332,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
     } finally {
       setLoading(false);
+      setTimeout(() => setIsSigningOut(false), 1200);
     }
   };
 

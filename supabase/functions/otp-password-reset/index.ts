@@ -1,10 +1,14 @@
 import { serve } from 'https://deno.land/std@0.192.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.7'
 import { Resend } from 'npm:resend'
+import { corsHeaders, handleCors } from '../_shared/cors.ts'
 
 const resend = new Resend('re_PKY25c41_AZLTLYzknWWNygBm9eacocSt')
 
 serve(async (req) => {
+  const corsResponse = handleCors(req)
+  if (corsResponse) return corsResponse
+
   try {
     const { email } = await req.json()
 
@@ -14,7 +18,7 @@ serve(async (req) => {
         error: 'Email is required' 
       }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
       })
     }
 
@@ -36,7 +40,7 @@ serve(async (req) => {
         details: otpError.message 
       }), {
         status: 500,
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
       })
     }
 
@@ -47,7 +51,7 @@ serve(async (req) => {
         error: otpResult.message 
       }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
       })
     }
 
@@ -138,7 +142,7 @@ Site: ufsbd34.fr
         details: emailError.message 
       }), {
         status: 500,
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
       })
     }
 
@@ -155,7 +159,7 @@ Site: ufsbd34.fr
       expires_at: otpResult.expires_at
     }), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' }
+      headers: corsHeaders
     })
   } catch (err) {
     console.error('Unexpected error:', err)
@@ -165,7 +169,7 @@ Site: ufsbd34.fr
       details: err.message 
     }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' }
+      headers: corsHeaders
     })
   }
 })

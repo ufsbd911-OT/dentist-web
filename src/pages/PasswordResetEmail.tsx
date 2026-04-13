@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from '@/hooks/use-toast';
 import { AlertCircle, RefreshCw, Mail } from 'lucide-react';
+import { requestOtpPasswordReset } from '@/lib/otp-password-reset';
 
 export default function PasswordResetEmail() {
   const navigate = useNavigate();
@@ -27,17 +28,8 @@ export default function PasswordResetEmail() {
     setError(null);
 
     try {
-      // Call the OTP password reset Edge Function
-      const response = await fetch('https://cmcfeiskfdbsefzqywbk.supabase.co/functions/v1/otp-password-reset', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNtY2ZlaXNrZmRic2VmenF5d2JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIwOTAwMzIsImV4cCI6MjA2NzY2NjAzMn0.xVUK-YzeIWDMmunYQj86hAsWja6nh_iDAVs2ViAspjU'
-        },
-        body: JSON.stringify({ email })
-      });
-
-      const result = await response.json();
+      const normalizedEmail = email.trim();
+      const result = await requestOtpPasswordReset(normalizedEmail);
 
       if (!result.success) {
         setError(result.error || 'Erreur lors de l\'envoi du code OTP.');
@@ -50,7 +42,7 @@ export default function PasswordResetEmail() {
       });
 
       // Redirect to OTP verification page with email
-      navigate(`/verify-otp?email=${encodeURIComponent(email)}&expires=${encodeURIComponent(result.expires_at)}`);
+      navigate(`/verify-otp?email=${encodeURIComponent(normalizedEmail)}&expires=${encodeURIComponent(result.expires_at || '')}`);
 
     } catch (error: any) {
       console.error('OTP sending error:', error);
