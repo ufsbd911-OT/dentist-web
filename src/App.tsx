@@ -19,6 +19,12 @@ const BlogPost = lazy(() => import("./pages/BlogPost").catch(() => ({ default: (
 const BlogSubmit = lazy(() => import("./pages/BlogSubmit").catch(() => ({ default: () => <FallbackPage title="Submit Blog" /> })));
 const Contact = lazy(() => import("./pages/Contact").catch(() => ({ default: () => <FallbackPage title="Contact" /> })));
 const Organigramme = lazy(() => import("./pages/Organigramme").catch(() => ({ default: () => <FallbackPage title="Organigramme" /> })));
+const Prevention = lazy(() => import("./pages/Prevention").catch(() => ({ default: () => <FallbackPage title="Prévention" /> })));
+const Formation = lazy(() => import("./pages/Formation").catch(() => ({ default: () => <FallbackPage title="Formation" /> })));
+const Interventions = lazy(() => import("./pages/Interventions").catch(() => ({ default: () => <FallbackPage title="Interventions" /> })));
+const DemandeAvis = lazy(() => import("./pages/DemandeAvis").catch(() => ({ default: () => <FallbackPage title="Demande d'avis" /> })));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy").catch(() => ({ default: () => <FallbackPage title="Politique de confidentialite" /> })));
+const LegalNotice = lazy(() => import("./pages/LegalNotice").catch(() => ({ default: () => <FallbackPage title="Mentions legales" /> })));
 const WriteBlog = lazy(() => import("./pages/WriteBlog").catch(() => ({ default: () => <FallbackPage title="Write Blog" /> })));
 const EditBlog = lazy(() => import("./pages/EditBlog").catch(() => ({ default: () => <FallbackPage title="Edit Blog" /> })));
 const TestPage = lazy(() => import("./pages/TestPage").catch(() => ({ default: () => <FallbackPage title="Test Page" /> })));
@@ -150,6 +156,14 @@ const App = () => {
                 <Route path="/edit/:id" element={<SafeRoute><EditBlog /></SafeRoute>} />
                 <Route path="/contact" element={<SafeRoute><Contact /></SafeRoute>} />
                 <Route path="/organigramme" element={<SafeRoute><Organigramme /></SafeRoute>} />
+                <Route path="/prevention" element={<SafeRoute><Prevention /></SafeRoute>} />
+                <Route path="/formation" element={<SafeRoute><Formation /></SafeRoute>} />
+                <Route path="/interventions" element={<SafeRoute><Interventions /></SafeRoute>} />
+                <Route path="/demande-avis" element={<SafeRoute><DemandeAvis /></SafeRoute>} />
+                <Route path="/politique-confidentialite" element={<SafeRoute><PrivacyPolicy /></SafeRoute>} />
+                <Route path="/privacy-policy" element={<SafeRoute><PrivacyPolicy /></SafeRoute>} />
+                <Route path="/mentions-legales" element={<SafeRoute><LegalNotice /></SafeRoute>} />
+                <Route path="/legal-notice" element={<SafeRoute><LegalNotice /></SafeRoute>} />
                 <Route path="/test" element={<SafeRoute><TestPage /></SafeRoute>} />
                 <Route path="/dev/image-tester" element={<SafeRoute><ImageTester /></SafeRoute>} />
                 <Route path="/write-blog" element={<SafeRoute><WriteBlog /></SafeRoute>} />
@@ -183,28 +197,6 @@ const App = () => {
                   <Route path="debug/gallery-inspector" element={<SafeRoute><GalleryInspector /></SafeRoute>} />
                 </Route>
                 <Route path="/admin-access" element={<SafeRoute><AdminAccessManager /></SafeRoute>} />
-                {/* Service pages placeholders */}
-                <Route path="/prevention" element={
-                  <SafeRoute>
-                    <div className="min-h-screen flex items-center justify-center">
-                      <h1 className="text-4xl font-bold">Prévention - Page en construction</h1>
-                    </div>
-                  </SafeRoute>
-                } />
-                <Route path="/formation" element={
-                  <SafeRoute>
-                    <div className="min-h-screen flex items-center justify-center">
-                      <h1 className="text-4xl font-bold">Formation - Page en construction</h1>
-                    </div>
-                  </SafeRoute>
-                } />
-                <Route path="/interventions" element={
-                  <SafeRoute>
-                    <div className="min-h-screen flex items-center justify-center">
-                      <h1 className="text-4xl font-bold">Interventions - Page en construction</h1>
-                    </div>
-                  </SafeRoute>
-                } />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<SafeRoute><NotFound /></SafeRoute>} />
               </Routes>

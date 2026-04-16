@@ -16,6 +16,12 @@ export default function Contact() {
       <Helmet>
         <title>Contact | UFSBD</title>
         <meta name="description" content="Contactez l'équipe UFSBD pour toute question ou demande d'information sur la santé dentaire." />
+        <link rel="canonical" href="https://ufsbd34.fr/contact" />
+        <meta property="og:title" content="Contact | UFSBD" />
+        <meta property="og:description" content="Contactez l'équipe UFSBD pour toute question ou demande d'information sur la santé dentaire." />
+        <meta property="og:url" content="https://ufsbd34.fr/contact" />
+        <meta name="twitter:title" content="Contact | UFSBD" />
+        <meta name="twitter:description" content="Contactez l'équipe UFSBD pour toute question ou demande d'information sur la santé dentaire." />
       </Helmet>
       <div className="min-h-screen bg-background">
         {/* Navigation Bar */}

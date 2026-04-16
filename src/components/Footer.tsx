@@ -34,9 +34,39 @@ export function Footer() {
                 </Link>
               </div>
               <div>
+                <Link to="/prevention" className="text-blue-200 hover:text-yellow-300 transition-colors inline-flex items-center">
+                  🛡️ Prévention
+                </Link>
+              </div>
+              <div>
+                <Link to="/formation" className="text-blue-200 hover:text-yellow-300 transition-colors inline-flex items-center">
+                  🎓 Formation
+                </Link>
+              </div>
+              <div>
+                <Link to="/interventions" className="text-blue-200 hover:text-yellow-300 transition-colors inline-flex items-center">
+                  🤝 Interventions
+                </Link>
+              </div>
+              <div>
+                <Link to="/contact" className="text-blue-200 hover:text-yellow-300 transition-colors inline-flex items-center">
+                  📞 Contact
+                </Link>
+              </div>
+              <div>
                 <ContactForm isModal trigger={<button className="text-blue-200 hover:text-yellow-300 transition-colors text-left inline-flex items-center">
                       ✉️ Nous contacter
                     </button>} />
+              </div>
+              <div>
+                <Link to="/politique-confidentialite" className="text-blue-200 hover:text-yellow-300 transition-colors inline-flex items-center">
+                  🔒 Politique de confidentialité
+                </Link>
+              </div>
+              <div>
+                <Link to="/mentions-legales" className="text-blue-200 hover:text-yellow-300 transition-colors inline-flex items-center">
+                  ⚖️ Mentions légales
+                </Link>
               </div>
               <div>
                 <a 

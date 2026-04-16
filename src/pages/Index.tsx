@@ -48,7 +48,18 @@ const Index = () => {
     short: "L'UFSBD œuvre depuis plus de 50 ans pour la promotion de la santé bucco-dentaire.",
     full: "L'UFSBD œuvre depuis plus de 50 ans pour la promotion de la santé bucco-dentaire. Notre section de l'Hérault s'engage quotidiennement dans la prévention, la formation et l'information du public sur l'importance de la santé bucco-dentaire. Nous menons des actions concrètes auprès des écoles, entreprises et institutions pour sensibiliser à l'hygiène bucco-dentaire et promouvoir les bonnes pratiques."
   };
-  return <div className="min-h-screen bg-background">
+  return <>
+      <Helmet>
+        <title>UFSBD Hérault - Union Française pour la Santé Bucco-Dentaire</title>
+        <meta name="description" content="Union Française pour la Santé Bucco-Dentaire - Section Hérault. Prévention, formation et sensibilisation à la santé bucco-dentaire pour tous." />
+        <link rel="canonical" href="https://ufsbd34.fr/" />
+        <meta property="og:title" content="UFSBD Hérault - Union Française pour la Santé Bucco-Dentaire" />
+        <meta property="og:description" content="Union Française pour la Santé Bucco-Dentaire - Section Hérault. Prévention, formation et sensibilisation à la santé bucco-dentaire pour tous." />
+        <meta property="og:url" content="https://ufsbd34.fr/" />
+        <meta name="twitter:title" content="UFSBD Hérault - Union Française pour la Santé Bucco-Dentaire" />
+        <meta name="twitter:description" content="Union Française pour la Santé Bucco-Dentaire - Section Hérault. Prévention, formation et sensibilisation à la santé bucco-dentaire pour tous." />
+      </Helmet>
+      <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="bg-white/95 backdrop-blur-sm border-b shadow-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3 md:py-4">
@@ -295,6 +306,7 @@ const Index = () => {
           <SupabaseStatus showDetails={true} />
         </div>
       )}
-    </div>;
+    </div>
+    </>;
 };
 export default Index;

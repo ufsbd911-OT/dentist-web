@@ -163,32 +163,213 @@
         margin: 0;
         padding: 0;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: #f8fafc;
+        color: #0f172a;
+      }
+
+      .boot-fallback {
         min-height: 100vh;
+        background:
+          linear-gradient(180deg, rgba(37, 99, 235, 0.08), rgba(255, 255, 255, 0) 240px),
+          #f8fafc;
+      }
+
+      .boot-header {
+        background: #ffffff;
+        border-bottom: 1px solid #e2e8f0;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+      }
+
+      .boot-header-inner,
+      .boot-main,
+      .boot-footer-inner {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding-left: 24px;
+        padding-right: 24px;
+      }
+
+      .boot-header-inner {
+        padding-top: 20px;
+        padding-bottom: 20px;
         display: flex;
         align-items: center;
-        justify-content: center;
+        justify-content: space-between;
+        gap: 20px;
       }
-      
-      .loading-container {
-        text-align: center;
-        color: white;
-        max-width: 500px;
-        padding: 40px;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 16px;
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+
+      .boot-nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
       }
-      
-      .loading-spinner {
-        width: 64px;
-        height: 64px;
-        border: 4px solid rgba(255, 255, 255, 0.3);
-        border-top: 4px solid white;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-        margin: 0 auto 20px;
+
+      .boot-nav a,
+      .boot-card a,
+      .boot-footer-links a {
+        color: #1d4ed8;
+        text-decoration: none;
+      }
+
+      .boot-nav a:hover,
+      .boot-card a:hover,
+      .boot-footer-links a:hover {
+        text-decoration: underline;
+      }
+
+      .boot-main {
+        padding-top: 48px;
+        padding-bottom: 48px;
+      }
+
+      .boot-hero {
+        background: linear-gradient(135deg, #1d4ed8, #0891b2);
+        border-radius: 24px;
+        color: #ffffff;
+        padding: 40px 32px;
+        margin-bottom: 32px;
+        box-shadow: 0 20px 40px rgba(29, 78, 216, 0.18);
+      }
+
+      .boot-hero h1 {
+        margin: 0 0 16px;
+        font-size: clamp(2rem, 4vw, 3.5rem);
+        line-height: 1.1;
+      }
+
+      .boot-hero p {
+        margin: 0;
+        max-width: 760px;
+        font-size: 1.1rem;
+        line-height: 1.7;
+        color: rgba(255, 255, 255, 0.92);
+      }
+
+      .boot-meta {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        gap: 16px;
+        margin: 32px 0;
+      }
+
+      .boot-card {
+        background: #ffffff;
+        border: 1px solid #dbeafe;
+        border-radius: 18px;
+        padding: 24px;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+      }
+
+      .boot-card h2 {
+        margin-top: 0;
+        margin-bottom: 12px;
+        font-size: 1.3rem;
+      }
+
+      .boot-card p,
+      .boot-card li {
+        color: #475569;
+        line-height: 1.7;
+      }
+
+      .boot-card ul {
+        margin: 12px 0 0;
+        padding-left: 20px;
+      }
+
+      .boot-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 20px;
+      }
+
+      .route-hero {
+        background: #ffffff;
+        border: 1px solid #dbeafe;
+        border-radius: 24px;
+        padding: 32px;
+        margin-bottom: 28px;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+      }
+
+      .route-hero h1 {
+        margin: 0 0 14px;
+        font-size: clamp(2rem, 3vw, 2.75rem);
+        line-height: 1.15;
+      }
+
+      .route-hero p {
+        margin: 0;
+        color: #475569;
+        font-size: 1.05rem;
+        line-height: 1.7;
+        max-width: 800px;
+      }
+
+      .boot-footer {
+        background: #0f172a;
+        color: #cbd5e1;
+      }
+
+      .boot-footer-inner {
+        padding-top: 28px;
+        padding-bottom: 28px;
+      }
+
+      .boot-footer-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px 18px;
+        margin-top: 12px;
+      }
+
+      .boot-footer-links a {
+        color: #93c5fd;
+      }
+
+      .loading-container,
+      .error-container {
+        display: none;
+      }
+
+      .boot-notice {
+        margin-top: 24px;
+        padding: 16px 18px;
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        border-radius: 14px;
+        color: #1e3a8a;
+      }
+
+      .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      @media (max-width: 720px) {
+        .boot-header-inner,
+        .boot-main,
+        .boot-footer-inner {
+          padding-left: 16px;
+          padding-right: 16px;
+        }
+
+        .boot-header-inner {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .boot-hero {
+          padding: 32px 22px;
+          border-radius: 18px;
+        }
       }
       
       @keyframes spin {
@@ -229,11 +410,8 @@
         min-height: 100vh;
       }
       
-      /* Hide loading when app loads */
-      .app-loaded .loading-container {
-        display: none;
-      }
-      
+      .app-loaded .boot-fallback,
+      .app-loaded .loading-container,
       .app-loaded .error-container {
         display: none;
       }
@@ -241,18 +419,89 @@
   </head>
 
   <body>
-    <!-- Loading state -->
-    <div class="loading-container">
-      <div class="loading-spinner"></div>
-      <h1 style="font-size: 2rem; margin-bottom: 1rem; font-weight: 600;">
-        🦷 UFSBD Hérault
-      </h1>
-      <p style="margin-bottom: 2rem; opacity: 0.9; line-height: 1.6;">
-        Chargement de l'application...
-      </p>
-      <p style="font-size: 0.9rem; opacity: 0.7;">
-        Union Française pour la Santé Bucco-Dentaire
-      </p>
+    <div class="boot-fallback">
+      <header class="boot-header">
+        <div class="boot-header-inner">
+          <div>
+            <strong>UFSBD Hérault</strong>
+            <div style="color:#475569; margin-top:6px;">Union Française pour la Santé Bucco-Dentaire</div>
+          </div>
+          <nav class="boot-nav" aria-label="Navigation principale">
+            <a href="https://ufsbd34.fr/">Accueil</a>
+            <a href="https://ufsbd34.fr/blog">Actualités</a>
+            <a href="https://ufsbd34.fr/organigramme">Organisation</a>
+            <a href="https://ufsbd34.fr/contact">Contact</a>
+            <a href="https://ufsbd34.fr/prevention">Prévention</a>
+            <a href="https://ufsbd34.fr/formation">Formation</a>
+            <a href="https://ufsbd34.fr/interventions">Interventions</a>
+          </nav>
+        </div>
+      </header>
+
+      <main class="boot-main">
+        <section class="boot-hero">
+          <h1>Prévention, formation et sensibilisation à la santé bucco-dentaire</h1>
+          <p>
+            L'UFSBD Hérault agit pour informer le public, accompagner les structures partenaires
+            et promouvoir les bons réflexes de santé bucco-dentaire auprès des enfants, adultes,
+            seniors et publics vulnérables.
+          </p>
+        </section>
+
+        <section class="boot-meta" aria-label="Informations essentielles">
+          <article class="boot-card">
+            <h2>Contact</h2>
+            <p>Email : <a href="mailto:ufsbd34@ufsbd.fr">ufsbd34@ufsbd.fr</a></p>
+            <p>Téléphone : <a href="tel:+33686306204">06 86 30 62 04</a></p>
+            <p>Adresse : 285 rue Alfred Nobel, 34200 Montpellier</p>
+          </article>
+          <article class="boot-card">
+            <h2>Pages utiles</h2>
+            <ul>
+              <li><a href="https://ufsbd34.fr/contact">Page contact</a></li>
+              <li><a href="https://ufsbd34.fr/politique-confidentialite">Politique de confidentialité</a></li>
+              <li><a href="https://ufsbd34.fr/mentions-legales">Mentions légales</a></li>
+              <li><a href="https://ufsbd34.fr/ads.txt">ads.txt</a></li>
+            </ul>
+          </article>
+        </section>
+
+        <section class="boot-grid" aria-label="Actions de l'association">
+          <article class="boot-card">
+            <h2>Prévention</h2>
+            <p>Actions d'information et de sensibilisation pour favoriser les bons gestes d'hygiène bucco-dentaire.</p>
+            <a href="https://ufsbd34.fr/prevention">Découvrir la prévention</a>
+          </article>
+          <article class="boot-card">
+            <h2>Formation</h2>
+            <p>Temps de formation et accompagnement des partenaires qui relaient les messages de santé orale.</p>
+            <a href="https://ufsbd34.fr/formation">Découvrir la formation</a>
+          </article>
+          <article class="boot-card">
+            <h2>Interventions</h2>
+            <p>Interventions en milieu scolaire, associatif, médico-social et professionnel selon les besoins du terrain.</p>
+            <a href="https://ufsbd34.fr/interventions">Découvrir les interventions</a>
+          </article>
+        </section>
+
+        <div class="boot-notice">
+          Ce site publie également des actualités, des informations de contact et des pages d'organisation accessibles aux visiteurs et aux moteurs de recherche.
+        </div>
+      </main>
+
+      <footer class="boot-footer">
+        <div class="boot-footer-inner">
+          <strong>UFSBD Hérault</strong>
+          <div class="boot-footer-links">
+            <a href="https://ufsbd34.fr/blog">Actualités</a>
+            <a href="https://ufsbd34.fr/contact">Contact</a>
+            <a href="https://ufsbd34.fr/organigramme">Organisation</a>
+            <a href="https://ufsbd34.fr/politique-confidentialite">Confidentialité</a>
+            <a href="https://ufsbd34.fr/mentions-legales">Mentions légales</a>
+            <a href="https://ufsbd34.fr/sitemap.xml">Sitemap</a>
+          </div>
+        </div>
+      </footer>
     </div>
 
     <!-- Error state (hidden by default) -->
@@ -284,6 +533,16 @@
     <!-- Script to handle loading states and errors -->
     <script>
       // Global error handler
+      function showError(message) {
+        var errorContainer = document.getElementById('error-container');
+        var errorDetails = document.getElementById('error-details');
+        if (!errorContainer || !errorDetails) return;
+
+        document.body.classList.add('app-loaded');
+        errorContainer.style.display = 'block';
+        errorDetails.textContent = message;
+      }
+
       window.addEventListener('error', function(event) {
         console.error('Global error caught:', event.error);
         showError('Global error: ' + (event.error?.message || 'Unknown error'));
@@ -294,29 +553,15 @@
         showError('Unhandled promise rejection: ' + event.reason);
       });
 
-      // Show error function
-      function showError(message) {
-        document.body.classList.add('app-loaded');
-        document.getElementById('error-container').style.display = 'block';
-        document.getElementById('error-details').textContent = message;
-      }
-
       // Hide loading when app starts
       function hideLoading() {
         document.body.classList.add('app-loaded');
       }
 
-      // Timeout to show error if app doesn't load
-      setTimeout(function() {
-        if (!document.body.classList.contains('app-loaded')) {
-          showError('Application loading timeout. Please check your internet connection.');
-        }
-      }, 10000); // 10 seconds timeout
-
       // Hide loading when script loads
       document.addEventListener('DOMContentLoaded', function() {
         // Give the app a moment to start
-        setTimeout(hideLoading, 1000);
+        setTimeout(hideLoading, 600);
       });
     </script>
 

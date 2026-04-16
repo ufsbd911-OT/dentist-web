@@ -46,6 +46,18 @@ export default function BlogPost() {
   const [notFound, setNotFound] = useState(false);
   const [showMobileNav, setShowMobileNav] = useState(false);
   const { user, userRole, signOut } = useAuth();
+  const pageHelmet = (
+    <Helmet>
+      <title>{post?.title ? `${post.title} | UFSBD` : 'Article de blog | UFSBD'}</title>
+      <meta name="description" content={post?.excerpt || 'Lire cet article de blog sur la santé dentaire proposé par UFSBD.'} />
+      {id && <link rel="canonical" href={`https://ufsbd34.fr/blog/${id}`} />}
+      <meta property="og:title" content={post?.title ? `${post.title} | UFSBD` : 'Article de blog | UFSBD'} />
+      <meta property="og:description" content={post?.excerpt || 'Lire cet article de blog sur la santé dentaire proposé par UFSBD.'} />
+      {id && <meta property="og:url" content={`https://ufsbd34.fr/blog/${id}`} />}
+      <meta name="twitter:title" content={post?.title ? `${post.title} | UFSBD` : 'Article de blog | UFSBD'} />
+      <meta name="twitter:description" content={post?.excerpt || 'Lire cet article de blog sur la santé dentaire proposé par UFSBD.'} />
+    </Helmet>
+  );
 
   useEffect(() => {
     if (id) {
@@ -97,6 +109,7 @@ export default function BlogPost() {
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
+        {pageHelmet}
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center p-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -107,15 +120,17 @@ export default function BlogPost() {
   }
 
   if (notFound || !post) {
-    return <Navigate to="/blog" replace />;
+    return (
+      <>
+        {pageHelmet}
+        <Navigate to="/blog" replace />
+      </>
+    );
   }
 
   return (
     <>
-      <Helmet>
-        <title>{post?.title ? `${post.title} | UFSBD` : 'Article de blog | UFSBD'}</title>
-        <meta name="description" content={post?.excerpt || 'Lire cet article de blog sur la santé dentaire proposé par UFSBD.'} />
-      </Helmet>
+      {pageHelmet}
       <div className="min-h-screen bg-background">
         {/* Navigation Bar */}
         <header className="bg-white/95 backdrop-blur-sm border-b shadow-sm sticky top-0 z-50">

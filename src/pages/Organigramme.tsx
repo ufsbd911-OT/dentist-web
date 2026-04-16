@@ -10,6 +10,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Tree } from '@minoru/react-dnd-treeview';
 import { Footer } from '@/components/Footer';
 import { convertToPublicUrl } from '@/lib/utils';
+import { Helmet } from 'react-helmet';
 
 export default function Organigramme() {
   const [orgData, setOrgData] = useState<OrganigramMember[]>([]);
@@ -17,6 +18,21 @@ export default function Organigramme() {
   const [showMobileNav, setShowMobileNav] = useState(false);
   const { user, userRole, signOut } = useAuth();
   const canEdit = userRole === 'admin' || userRole === 'doctor';
+  const pageHelmet = (
+    <Helmet>
+      <title>Organisation | UFSBD Herault</title>
+      <meta
+        name="description"
+        content="Decouvrez l'organisation et les membres de l'UFSBD Herault ainsi que les principales responsabilites au sein de l'association."
+      />
+      <link rel="canonical" href="https://ufsbd34.fr/organigramme" />
+      <meta property="og:title" content="Organisation | UFSBD Herault" />
+      <meta property="og:description" content="Decouvrez l'organisation et les membres de l'UFSBD Herault ainsi que les principales responsabilites au sein de l'association." />
+      <meta property="og:url" content="https://ufsbd34.fr/organigramme" />
+      <meta name="twitter:title" content="Organisation | UFSBD Herault" />
+      <meta name="twitter:description" content="Decouvrez l'organisation et les membres de l'UFSBD Herault ainsi que les principales responsabilites au sein de l'association." />
+    </Helmet>
+  );
 
   useEffect(() => {
     fetchOrgData();
@@ -132,6 +148,7 @@ export default function Organigramme() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-blue-50/30 to-white flex items-center justify-center">
+        {pageHelmet}
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p>Chargement de l'organigramme...</p>
@@ -165,6 +182,7 @@ export default function Organigramme() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50/30 to-white">
+      {pageHelmet}
       {/* Navigation Bar */}
       <header className="bg-white/95 backdrop-blur-sm border-b shadow-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3 md:py-4">

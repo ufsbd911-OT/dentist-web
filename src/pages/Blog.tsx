@@ -47,6 +47,18 @@ export default function Blog() {
   const [showMobileNav, setShowMobileNav] = useState(false);
   const { user, userRole, signOut } = useAuth();
   const { toast } = useToast();
+  const pageHelmet = (
+    <Helmet>
+      <title>Blog | UFSBD</title>
+      <meta name="description" content="Découvrez les derniers articles, conseils et actualités sur la santé dentaire par UFSBD." />
+      <link rel="canonical" href="https://ufsbd34.fr/blog" />
+      <meta property="og:title" content="Blog | UFSBD" />
+      <meta property="og:description" content="Découvrez les derniers articles, conseils et actualités sur la santé dentaire par UFSBD." />
+      <meta property="og:url" content="https://ufsbd34.fr/blog" />
+      <meta name="twitter:title" content="Blog | UFSBD" />
+      <meta name="twitter:description" content="Découvrez les derniers articles, conseils et actualités sur la santé dentaire par UFSBD." />
+    </Helmet>
+  );
 
   useEffect(() => {
     fetchApprovedPosts();
@@ -104,6 +116,7 @@ export default function Blog() {
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
+        {pageHelmet}
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center p-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -116,6 +129,7 @@ export default function Blog() {
   if (error) {
     return (
       <div className="min-h-screen bg-background">
+        {pageHelmet}
         <div className="container mx-auto px-4 py-8">
           <div className="text-center py-12">
             <p className="text-muted-foreground mb-4">{error}</p>
@@ -130,10 +144,7 @@ export default function Blog() {
 
   return (
     <>
-      <Helmet>
-        <title>Blog | UFSBD</title>
-        <meta name="description" content="Découvrez les derniers articles, conseils et actualités sur la santé dentaire par UFSBD." />
-      </Helmet>
+      {pageHelmet}
       <div className="min-h-screen bg-background">
         {/* Navigation Bar */}
         <header className="bg-white/95 backdrop-blur-sm border-b shadow-sm sticky top-0 z-50">
