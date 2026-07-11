@@ -85,7 +85,7 @@ export default function ApprovedPosts() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="admin-page admin-posts-page space-y-6">
       <div>
         <h1 className="text-3xl font-bold">Approved Posts</h1>
         <p className="text-muted-foreground">Manage published blog posts</p>

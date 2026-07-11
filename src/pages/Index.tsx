@@ -1,312 +1,251 @@
-import { Link } from 'react-router-dom';
 import { useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ContactForm } from '@/components/ContactForm';
-import { Heart, Shield, Users, ChevronDown, ChevronUp, PenTool, Instagram } from 'lucide-react';
-import { checkAdminAccess, hasAdminRole } from '@/utils/adminAccess';
-import doctorHeroImage from '@/assets/doctor-hero.jpg';
+import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
+import {
+  ArrowRight,
+  Building2,
+  ChevronDown,
+  GraduationCap,
+  HeartHandshake,
+  School,
+  ShieldCheck,
+  Sparkles,
+  Stethoscope,
+  UsersRound,
+} from 'lucide-react';
+import preventionCareImage from '@/assets/prevention-care.jpg';
+import schoolWorkshopImage from '@/assets/school-workshop.jpg';
+import professionalTrainingImage from '@/assets/professional-training.jpg';
+import { ContactForm } from '@/components/ContactForm';
 import { Footer } from '@/components/Footer';
-import { SupabaseStatus } from '@/components/SupabaseStatus';
+import { SiteHeader } from '@/components/SiteHeader';
+import { AutoScrollTape } from '@/components/AutoScrollTape';
+import { FadeInView } from '@/components/FadeInView';
 
-const Index = () => {
-  const {
-    user,
-    userRole,
-    signOut
-  } = useAuth();
+const pathways = [
+  {
+    number: '01',
+    title: 'Prévenir à chaque âge',
+    copy: 'Des repères simples et fiables pour faire de la santé bucco-dentaire un réflexe quotidien.',
+    path: '/prevention',
+    image: preventionCareImage,
+    icon: ShieldCheck,
+  },
+  {
+    number: '02',
+    title: 'Agir sur le terrain',
+    copy: 'Écoles, établissements et entreprises : nous allons à la rencontre de tous les publics.',
+    path: '/interventions',
+    image: schoolWorkshopImage,
+    icon: HeartHandshake,
+  },
+  {
+    number: '03',
+    title: 'Former les professionnels',
+    copy: 'Des programmes concrets pour transmettre les bonnes pratiques et renforcer les compétences.',
+    path: '/formation',
+    image: professionalTrainingImage,
+    icon: GraduationCap,
+  },
+];
+
+const commitments = [
+  { icon: School, title: 'Dès le plus jeune âge', copy: 'Des actions pédagogiques adaptées aux enfants et aux équipes éducatives.' },
+  { icon: Building2, title: 'Dans les lieux de vie', copy: 'Des interventions pensées pour les entreprises, structures et établissements.' },
+  { icon: Stethoscope, title: 'Avec les professionnels', copy: 'Un réseau mobilisé autour de recommandations claires et actualisées.' },
+  { icon: UsersRound, title: 'Pour tous les publics', copy: 'Une attention particulière portée aux personnes les plus vulnérables.' },
+  { icon: Sparkles, title: 'Par la prévention', copy: 'Donner à chacun les moyens d’agir avant que les problèmes ne s’installent.' },
+  { icon: ShieldCheck, title: 'Avec une parole fiable', copy: 'Une information de santé accessible, indépendante et directement utile.' },
+];
+
+export default function Index() {
   const [showFullMission, setShowFullMission] = useState(false);
-  const [showMobileNav, setShowMobileNav] = useState(false);
-  const services = [{
-    title: "Prévention",
-    description: "Conseils et actions de prévention bucco-dentaire pour tous les âges",
-    icon: Shield,
-    path: "/prevention",
-    color: "from-blue-500 to-blue-600"
-  }, {
-    title: "Formation",
-    description: "Formations et sensibilisation à la santé bucco-dentaire",
-    icon: Users,
-    path: "/formation",
-    color: "from-cyan-500 to-cyan-600"
-  }, {
-    title: "Interventions",
-    description: "Interventions en milieu scolaire et professionnel",
-    icon: Heart,
-    path: "/interventions",
-    color: "from-blue-600 to-cyan-500"
-  }, {
-    title: "Demande d’avis",
-    description: "Demandez un avis professionnel sur votre santé bucco-dentaire ou vos traitements.",
-    icon: PenTool,
-    path: "/demande-avis",
-    color: "from-purple-500 to-pink-500"
-  }];
-  const missionText = {
-    short: "L'UFSBD œuvre depuis plus de 50 ans pour la promotion de la santé bucco-dentaire.",
-    full: "L'UFSBD œuvre depuis plus de 50 ans pour la promotion de la santé bucco-dentaire. Notre section de l'Hérault s'engage quotidiennement dans la prévention, la formation et l'information du public sur l'importance de la santé bucco-dentaire. Nous menons des actions concrètes auprès des écoles, entreprises et institutions pour sensibiliser à l'hygiène bucco-dentaire et promouvoir les bonnes pratiques."
-  };
-  return <>
+
+  return (
+    <>
       <Helmet>
-        <title>UFSBD Hérault - Union Française pour la Santé Bucco-Dentaire</title>
-        <meta name="description" content="Union Française pour la Santé Bucco-Dentaire - Section Hérault. Prévention, formation et sensibilisation à la santé bucco-dentaire pour tous." />
+        <title>UFSBD Hérault — La prévention bucco-dentaire en action</title>
+        <meta name="description" content="L’UFSBD Hérault agit pour la prévention, la formation et la santé bucco-dentaire de tous les publics." />
         <link rel="canonical" href="https://ufsbd34.fr/" />
-        <meta property="og:title" content="UFSBD Hérault - Union Française pour la Santé Bucco-Dentaire" />
-        <meta property="og:description" content="Union Française pour la Santé Bucco-Dentaire - Section Hérault. Prévention, formation et sensibilisation à la santé bucco-dentaire pour tous." />
+        <meta property="og:title" content="UFSBD Hérault — La prévention bucco-dentaire en action" />
+        <meta property="og:description" content="Prévention, formation et interventions de terrain pour une meilleure santé bucco-dentaire." />
         <meta property="og:url" content="https://ufsbd34.fr/" />
-        <meta name="twitter:title" content="UFSBD Hérault - Union Française pour la Santé Bucco-Dentaire" />
-        <meta name="twitter:description" content="Union Française pour la Santé Bucco-Dentaire - Section Hérault. Prévention, formation et sensibilisation à la santé bucco-dentaire pour tous." />
       </Helmet>
-      <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-white/95 backdrop-blur-sm border-b shadow-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-3 md:py-4">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center">
-              <a href="https://www.ufsbd.fr" target="_blank" rel="noopener noreferrer">
-                <img 
-                  src="/ufsbd-logo-new.jpg" 
-                  alt="UFSBD Logo" 
-                  className="h-12 md:h-16 w-auto hover:scale-105 transition-transform cursor-pointer" 
-                />
-              </a>
-            </div>
-            
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center space-x-4">
-              <Button variant="ghost" asChild className="hover:text-primary transition-colors">
-                <Link to="/blog">Actualités</Link>
-              </Button>
-              <Button variant="ghost" asChild className="hover:text-primary transition-colors">
-                <Link to="/organigramme">Organisation</Link>
-              </Button>
-              <Button variant="ghost" asChild className="hover:text-primary transition-colors">
-                <Link to="/contact">Contact</Link>
-              </Button>
-            {user ? (
-              <div className="hidden md:flex items-center space-x-4">
-                {(userRole === 'admin' || userRole === 'author') && (
-                  <Button variant="ghost" asChild className="hover:text-primary transition-colors">
-                    <Link to="/submit">Écrire un article</Link>
-                  </Button>
-                )}
-                {(userRole === 'admin' || hasAdminRole(userRole) || checkAdminAccess(user?.email)) && (
-                  <Button variant="ghost" asChild className="hover:text-primary transition-colors">
-                    <Link to="/admin">Admin</Link>
-                  </Button>
-                )}
-                <span className="text-sm text-muted-foreground">Bonjour {user.email}</span>
-                <Button variant="outline" onClick={signOut} className="hover:bg-primary hover:text-white transition-colors">
-                  Déconnexion
-                </Button>
-              </div>
-            ) : (
-              <Button asChild className="btn-primary hidden md:inline-flex">
-                <Link to="/auth">Connexion</Link>
-              </Button>
-            )}
-            </nav>
-            
-            {/* Mobile Navigation */}
-            <div className="md:hidden">
-              <Button variant="ghost" size="icon" onClick={() => setShowMobileNav(!showMobileNav)}>
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              </Button>
-            </div>
-          </div>
-          
-          {/* Mobile Menu */}
-          {showMobileNav && (
-            <div className="md:hidden mt-4 pb-4 border-t border-gray-200">
-              <div className="flex flex-col space-y-3 pt-4">
-                <Button variant="ghost" asChild className="justify-start hover:text-primary transition-colors">
-                  <Link to="/blog" onClick={() => setShowMobileNav(false)}>Actualités</Link>
-                </Button>
-                <Button variant="ghost" asChild className="justify-start hover:text-primary transition-colors">
-                  <Link to="/organigramme" onClick={() => setShowMobileNav(false)}>Organisation</Link>
-                </Button>
-                <Button variant="ghost" asChild className="justify-start hover:text-primary transition-colors">
-                  <Link to="/contact" onClick={() => setShowMobileNav(false)}>Contact</Link>
-                </Button>
-                {user ? (
-                  <>
-                    {(userRole === 'admin' || userRole === 'author') && (
-                      <Button variant="ghost" asChild className="justify-start hover:text-primary transition-colors">
-                        <Link to="/submit" onClick={() => setShowMobileNav(false)}>Écrire un article</Link>
-                      </Button>
-                    )}
-                    {(userRole === 'admin' || hasAdminRole(userRole) || checkAdminAccess(user?.email)) && (
-                      <Button variant="ghost" asChild className="justify-start hover:text-primary transition-colors">
-                        <Link to="/admin" onClick={() => setShowMobileNav(false)}>Admin</Link>
-                      </Button>
-                    )}
-                    <div className="px-3 py-2 text-sm text-muted-foreground border-t">
-                      Bonjour {user.email}
-                    </div>
-                    <Button variant="outline" onClick={() => { signOut(); setShowMobileNav(false); }} className="mx-3">
-                      Déconnexion
-                    </Button>
-                  </>
-                ) : (
-                  <Button asChild className="btn-primary mx-3">
-                    <Link to="/auth" onClick={() => setShowMobileNav(false)}>Connexion</Link>
-                  </Button>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-      </header>
 
-      {/* Hero Section */}
-      <section className="relative py-20 lg:py-32 hero-gradient overflow-hidden">
-        {/* Doctor Background Image */}
-        <div className="absolute inset-0">
-          <img src={doctorHeroImage} alt="Professional dentist" className="w-full h-full object-cover object-center" />
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/90 via-blue-600/80 to-cyan-500/70"></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-blue-900/50 to-transparent"></div>
-        </div>
-        
-        <div className="container mx-auto px-4 text-center relative z-10">
-          <div className="animate-fade-in">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 text-white leading-tight drop-shadow-lg">
-              Union Française pour la<br />
-              <span className="text-yellow-300">Santé Bucco-Dentaire</span>
-            </h1>
-            <p className="text-xl lg:text-2xl text-blue-100 mb-8 max-w-4xl mx-auto drop-shadow-md">
-              Section Hérault - Œuvrer pour une meilleure santé bucco-dentaire pour tous
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-slide-up">
-              <Button size="lg" asChild className="btn-accent text-lg px-8 py-3 shadow-xl">
-                <Link to="/blog">📰 Nos actualités</Link>
-              </Button>
-              <ContactForm isModal trigger={<Button variant="outline" size="lg" className="-bottom-0 text-black text-black hover:text-black text-lg px-8 py-3 shadow-xl">
-                    ✉️ Nous contacter
-                  </Button>} />
-            </div>
-          </div>
-        </div>
-        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-background to-transparent"></div>
-      </section>
-
-      {/* Services Section */}
-      <section className="py-20 bg-gradient-to-b from-background to-blue-50/30">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16 animate-fade-in">
-            <h2 className="text-4xl font-bold gradient-text mb-4">Nos Services</h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Découvrez nos actions pour promouvoir la santé bucco-dentaire
-            </p>
-          </div>
-          <div className="grid gap-8 md:grid-cols-3 max-w-6xl mx-auto">
-            {services.map((service, index) => {
-            const IconComponent = service.icon;
-            return <ContactForm key={service.title} isModal title={`Demande d'information - ${service.title}`} trigger={<Card className={`h-full card-hover cursor-pointer shadow-lg hover:shadow-xl border border-white/20 bg-gradient-to-br ${service.color} transition-all duration-300`}>
-                      <CardHeader className="text-center pb-4">
-                        <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-4 animate-glow">
-                          <IconComponent className="h-8 w-8 text-white" />
-                        </div>
-                        <CardTitle className="text-2xl text-white drop-shadow-md">{service.title}</CardTitle>
-                      </CardHeader>
-                      <CardContent className="text-center">
-                        <CardDescription className="text-blue-100 text-lg drop-shadow-sm">
-                          {service.description}
-                        </CardDescription>
-                      </CardContent>
-                    </Card>} />;
-          })}
-          </div>
-        </div>
-      </section>
-
-      {/* Who Are We Section */}
-      <section className="py-20 bg-gradient-to-b from-cyan-50/30 to-white">
-        <div className="container mx-auto px-4">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div className="space-y-8 animate-fade-in">
-              <h2 className="text-4xl font-bold gradient-text">Qui sommes-nous ?</h2>
-              <div className="space-y-6 text-muted-foreground">
-                <p className="text-lg leading-relaxed">
-                  L'Union Française pour la Santé Bucco-Dentaire (UFSBD) est une association loi 1901 
-                  créée en 1966, reconnue d'utilité publique depuis 1976. Nous sommes l'organisation 
-                  de référence en matière de prévention bucco-dentaire en France.
+      <div className="public-site">
+        <SiteHeader overlay />
+        <main>
+          <section className="home-hero">
+            <video 
+              className="home-hero__video home-hero__video--desktop" 
+              autoPlay 
+              loop 
+              muted 
+              playsInline
+            >
+              <source src="/videos/hero-desktop.mp4" type="video/mp4" />
+            </video>
+            <video 
+              className="home-hero__video home-hero__video--mobile" 
+              autoPlay 
+              loop 
+              muted 
+              playsInline
+            >
+              <source src="/videos/hero-mobile.mp4" type="video/mp4" />
+            </video>
+            <div className="home-hero__scrim" />
+            <div className="site-container home-hero__content">
+              <div className="home-hero__copy">
+                <p className="eyebrow eyebrow--light"><span />UFSBD Hérault · Prévention & santé</p>
+                <h1>La santé bucco-dentaire, <em>pour tous</em> et à chaque âge.</h1>
+                <p className="home-hero__lead">
+                  Depuis plus de 50 ans, nous transformons la prévention en actions concrètes,
+                  au plus près des habitants de l’Hérault.
                 </p>
-                <p className="text-lg leading-relaxed">
-                  Forte de plus de 50 ans d'expérience, l'UFSBD fédère les professionnels de santé 
-                  bucco-dentaire autour d'une mission commune : améliorer la santé bucco-dentaire 
-                  de tous les Français par la prévention et l'éducation à la santé.
-                </p>
-                <p className="text-lg leading-relaxed">
-                  Nos actions s'adressent à tous les publics, de la petite enfance au grand âge, 
-                  avec une attention particulière portée aux populations les plus vulnérables.
-                </p>
-              </div>
-              <div className="grid grid-cols-2 gap-8 pt-6">
-                <div className="text-center animate-slide-up">
-                  <div className="text-4xl font-bold gradient-text mb-2">50+</div>
-                  <div className="text-sm text-muted-foreground">Années d'expérience</div>
-                </div>
-                <div className="text-center animate-slide-up">
-                  <div className="text-4xl font-bold gradient-text mb-2">1000+</div>
-                  <div className="text-sm text-muted-foreground">Professionnels engagés</div>
+                <div className="hero-actions">
+                  <Link to="/prevention" className="button button--cyan">Découvrir nos actions <ArrowRight size={18} /></Link>
+                  <ContactForm
+                    isModal
+                    trigger={<button className="button button--outline-light">Nous contacter</button>}
+                  />
                 </div>
               </div>
-            </div>
-            <div className="relative animate-fade-in">
-              <div className="aspect-square rounded-3xl overflow-hidden bg-gradient-to-br from-blue-500/10 to-cyan-500/10 p-8 shadow-large">
-                <div className="w-full h-full bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-2xl flex items-center justify-center">
-                  <div className="text-center space-y-6">
-                    <div className="w-32 h-32 mx-auto bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center shadow-large animate-glow">
-                      <svg className="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                      </svg>
-                    </div>
-                    <div className="space-y-3">
-                      <h3 className="text-2xl font-bold text-foreground">Notre Vision</h3>
-                      <p className="text-muted-foreground leading-relaxed">
-                        Une société où chacun peut bénéficier d'une santé bucco-dentaire optimale, 
-                        grâce à la prévention et à l'éducation
-                      </p>
-                    </div>
-                  </div>
+
+              <aside className="hero-proof" aria-label="Chiffres clés">
+                <div className="hero-proof__item">
+                  <strong>50+</strong>
+                  <span>ans d’engagement<br />pour la prévention</span>
                 </div>
+                <div className="hero-proof__item">
+                  <strong>34</strong>
+                  <span>une section locale<br />ancrée dans l’Hérault</span>
+                </div>
+              </aside>
+            </div>
+
+            <div className="hero-rail">
+              <div className="site-container hero-rail__inner">
+                {pathways.map((item) => (
+                  <Link to={item.path} key={item.path}>
+                    <span>{item.number}</span>
+                    <div><strong>{item.title}</strong><small>{item.copy}</small></div>
+                    <ArrowRight size={18} />
+                  </Link>
+                ))}
               </div>
             </div>
-          </div>
-        </div>
-      </section>
+          </section>
 
-      {/* Mission Section */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4 text-center">
-          <div className="max-w-4xl mx-auto animate-fade-in">
-            <h2 className="text-4xl font-bold gradient-text mb-8">Notre Mission</h2>
-            <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-3xl p-8 shadow-large">
-              <p className="text-lg text-foreground leading-relaxed">
-                {showFullMission ? missionText.full : missionText.short}
-              </p>
-              <Button variant="ghost" onClick={() => setShowFullMission(!showFullMission)} className="mt-4 text-primary hover:text-primary/80 transition-colors">
-                {showFullMission ? <>Voir moins <ChevronUp className="ml-2 h-4 w-4" /></> : <>En savoir plus <ChevronDown className="ml-2 h-4 w-4" /></>}
-              </Button>
+          <AutoScrollTape
+            items={['Prévention au quotidien', 'Actions en milieu scolaire', 'Formation des professionnels', 'Interventions en entreprise', 'Santé bucco-dentaire pour tous']}
+            label="Les actions de l’UFSBD Hérault"
+          />
+
+          <section className="intro-section section-pad overflow-hidden">
+            <FadeInView className="site-container intro-grid">
+              <p className="eyebrow"><span />Notre raison d’être</p>
+              <div>
+                <h2>Faire de la prévention un geste simple, <span className="blue-underline">partagé par tous.</span></h2>
+                <p>Nous réunissons professionnels de santé, acteurs de terrain et publics autour d’une même ambition : permettre à chacun de préserver durablement sa santé bucco-dentaire.</p>
+              </div>
+            </FadeInView>
+          </section>
+
+          <section className="pathways-section section-pad overflow-hidden">
+            <div className="site-container">
+              <FadeInView className="section-heading">
+                <div><p className="eyebrow"><span />Nos champs d’action</p><h2>Présents là où la prévention prend vie.</h2></div>
+                <Link to="/contact" className="text-link">Construire une action avec nous <ArrowRight size={17} /></Link>
+              </FadeInView>
+              <FadeInView className="pathways-grid">
+                {pathways.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <Link to={item.path} key={item.path} className="pathway-card h-full transition-all duration-300 hover:scale-[1.02] hover:shadow-xl group block">
+                      <img src={item.image} alt="" className="transition-transform duration-700 group-hover:scale-105" />
+                      <div className="pathway-card__scrim" />
+                      <div className="pathway-card__content">
+                        <div className="pathway-card__meta"><span>{item.number}</span><Icon size={22} /></div>
+                        <h3>{item.title}</h3>
+                        <p>{item.copy}</p>
+                        <span className="pathway-card__link">En savoir plus <ArrowRight size={17} className="transition-transform group-hover:translate-x-1" /></span>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </FadeInView>
             </div>
-          </div>
-        </div>
-      </section>
+          </section>
 
-      {/* Footer */}
-      <Footer />
-      
-      {/* Debug info - only in development */}
-      {import.meta.env.DEV && (
-        <div className="fixed bottom-4 right-4 bg-background border rounded-lg p-3 shadow-lg">
-          <SupabaseStatus showDetails={true} />
-        </div>
-      )}
-    </div>
-    </>;
-};
-export default Index;
+          <section className="mission-section overflow-hidden">
+            <FadeInView className="site-container mission-grid">
+              <div className="mission-stat">
+                <span>Depuis</span>
+                <strong>1966</strong>
+                <p>Une association reconnue d’utilité publique, engagée dans la durée.</p>
+              </div>
+              <div className="mission-copy">
+                <p className="eyebrow eyebrow--light"><span />Notre mission</p>
+                <h2>Informer, former et aller vers celles et ceux qui en ont le plus besoin.</h2>
+                <p>
+                  L’UFSBD fédère les professionnels autour d’une conviction forte : les inégalités de santé
+                  se réduisent par une prévention accessible et des actions menées au bon endroit, au bon moment.
+                  {showFullMission && ' Dans l’Hérault, notre équipe développe des projets adaptés aux écoles, entreprises, établissements médico-sociaux et institutions, avec la même exigence de proximité et d’impact.'}
+                </p>
+                <button className="mission-more" onClick={() => setShowFullMission((value) => !value)} aria-expanded={showFullMission}>
+                  {showFullMission ? 'Réduire' : 'Lire notre engagement'} <ChevronDown className={showFullMission ? 'is-open' : ''} size={18} />
+                </button>
+              </div>
+            </FadeInView>
+          </section>
+
+          <section className="process-section section-pad overflow-hidden">
+            <div className="site-container">
+              <FadeInView className="section-heading section-heading--center">
+                <div><p className="eyebrow"><span />Agir ensemble</p><h2>Une idée, un public, une action utile.</h2></div>
+              </FadeInView>
+              <FadeInView className="process-grid">
+                {[
+                  ['01', 'Échangeons', 'Vous nous partagez votre contexte, vos publics et vos objectifs.'],
+                  ['02', 'Construisons', 'Nous imaginons un format pédagogique adapté à votre réalité.'],
+                  ['03', 'Agissons', 'Nos professionnels interviennent et vous accompagnent sur le terrain.'],
+                ].map(([number, title, copy]) => (
+                  <article key={number} className="process-card h-full transition-all duration-300 hover:-translate-y-2 hover:shadow-lg border border-transparent hover:border-blue-100 bg-white">
+                    <span>{number}</span><h3>{title}</h3><p>{copy}</p>
+                  </article>
+                ))}
+              </FadeInView>
+            </div>
+          </section>
+
+          <section className="commitments-section section-pad overflow-hidden">
+            <div className="site-container commitments-grid">
+              <FadeInView className="commitments-intro">
+                <p className="eyebrow"><span />Notre approche</p>
+                <h2>Une prévention humaine, concrète et exigeante.</h2>
+                <p>Nos actions sont conçues pour être comprises, retenues et appliquées dans la vraie vie.</p>
+                <Link to="/organigramme" className="button button--navy">Découvrir notre organisation <ArrowRight size={18} /></Link>
+              </FadeInView>
+              <FadeInView className="commitment-cards">
+                {commitments.map(({ icon: Icon, title, copy }) => (
+                  <article key={title} className="commitment-card h-full transition-all duration-300 hover:scale-[1.03] hover:shadow-md bg-white">
+                    <span><Icon size={22} className="text-blue-600" /></span><h3>{title}</h3><p>{copy}</p>
+                  </article>
+                ))}
+              </FadeInView>
+            </div>
+          </section>
+
+          <section className="final-cta">
+            <div className="site-container final-cta__inner">
+              <div><p className="eyebrow eyebrow--light"><span />Un projet dans l’Hérault ?</p><h2>Faisons avancer la prévention, ensemble.</h2></div>
+              <div><p>Parlez-nous de votre public et de vos objectifs. Notre équipe vous répond avec une proposition claire et adaptée.</p><Link to="/contact" className="button button--light">Échanger avec l’équipe <ArrowRight size={18} /></Link></div>
+            </div>
+          </section>
+        </main>
+        <Footer />
+      </div>
+    </>
+  );
+}

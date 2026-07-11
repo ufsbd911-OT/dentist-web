@@ -1,176 +1,63 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { ContactForm } from '@/components/ContactForm';
-import { useAuth } from '@/hooks/useAuth';
+import { Clock3, Instagram, Mail, MapPin, Phone } from 'lucide-react';
 import { Helmet } from 'react-helmet';
-import { Instagram } from 'lucide-react';
+import { AutoScrollTape } from '@/components/AutoScrollTape';
+import { ContactForm } from '@/components/ContactForm';
 import { Footer } from '@/components/Footer';
+import { SiteHeader } from '@/components/SiteHeader';
+import { FadeInView } from '@/components/FadeInView';
 
 export default function Contact() {
-  const [showMobileNav, setShowMobileNav] = useState(false);
-  const { user, userRole, signOut } = useAuth();
-
   return (
     <>
       <Helmet>
-        <title>Contact | UFSBD</title>
-        <meta name="description" content="Contactez l'équipe UFSBD pour toute question ou demande d'information sur la santé dentaire." />
+        <title>Contact | UFSBD Hérault</title>
+        <meta name="description" content="Contactez l’équipe UFSBD Hérault pour une action de prévention, une formation ou une demande d’information." />
         <link rel="canonical" href="https://ufsbd34.fr/contact" />
-        <meta property="og:title" content="Contact | UFSBD" />
-        <meta property="og:description" content="Contactez l'équipe UFSBD pour toute question ou demande d'information sur la santé dentaire." />
+        <meta property="og:title" content="Contact | UFSBD Hérault" />
+        <meta property="og:description" content="Échangez avec l’équipe UFSBD Hérault au sujet de vos besoins de prévention et de formation." />
         <meta property="og:url" content="https://ufsbd34.fr/contact" />
-        <meta name="twitter:title" content="Contact | UFSBD" />
-        <meta name="twitter:description" content="Contactez l'équipe UFSBD pour toute question ou demande d'information sur la santé dentaire." />
       </Helmet>
-      <div className="min-h-screen bg-background">
-        {/* Navigation Bar */}
-        <header className="bg-white/95 backdrop-blur-sm border-b shadow-sm sticky top-0 z-50">
-          <div className="container mx-auto px-4 py-3 md:py-4">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center">
-                <Link to="/">
-                  <img 
-                    src="/ufsbd-logo-new.jpg" 
-                    alt="UFSBD Logo" 
-                    className="h-12 md:h-16 w-auto hover:scale-105 transition-transform cursor-pointer" 
-                  />
-                </Link>
+      <div className="public-site internal-page contact-page">
+        <SiteHeader />
+        <main>
+          <section className="contact-editorial-hero">
+            <div className="site-container">
+              <nav className="breadcrumb" aria-label="Fil d’Ariane"><Link to="/">Accueil</Link><span>/</span><span>Contact</span></nav>
+              <div className="contact-editorial-hero__grid">
+                <div><p className="eyebrow"><span />Parlons de votre projet</p><h1>Une question, un public, <em>une action à construire.</em></h1></div>
+                <p>Notre équipe vous aide à imaginer le format le plus utile pour votre établissement, votre entreprise ou votre public.</p>
               </div>
-              
-              {/* Desktop Navigation */}
-              <nav className="hidden md:flex items-center space-x-4">
-                <Button variant="ghost" asChild className="hover:text-primary transition-colors">
-                  <Link to="/">Accueil</Link>
-                </Button>
-                <Button variant="ghost" asChild className="hover:text-primary transition-colors">
-                  <Link to="/blog">Actualités</Link>
-                </Button>
-                <Button variant="ghost" asChild className="hover:text-primary transition-colors">
-                  <Link to="/organigramme">Organisation</Link>
-                </Button>
-                <Button variant="ghost" asChild className="hover:text-primary transition-colors bg-blue-100 text-blue-700">
-                  <Link to="/contact">Contact</Link>
-                </Button>
-                {user ? (
-                  <div className="hidden md:flex items-center space-x-4">
-                    {(userRole === 'admin' || userRole === 'author') && (
-                      <Button variant="ghost" asChild className="hover:text-primary transition-colors">
-                        <Link to="/submit">Écrire un article</Link>
-                      </Button>
-                    )}
-                    {userRole === 'admin' && (
-                      <Button variant="ghost" asChild className="hover:text-primary transition-colors">
-                        <Link to="/admin">Admin</Link>
-                      </Button>
-                    )}
-                    <span className="text-sm text-muted-foreground">Bonjour {user.email}</span>
-                    <Button variant="outline" onClick={signOut} className="hover:bg-primary hover:text-white transition-colors">
-                      Déconnexion
-                    </Button>
+            </div>
+          </section>
+
+          <AutoScrollTape items={['Prévention', 'Formation', 'Écoles', 'Entreprises', 'Établissements médico-sociaux', 'Conseils']} tone="yellow" label="Motifs de contact" />
+
+          <section className="contact-workspace section-pad overflow-hidden">
+            <div className="site-container contact-workspace__grid">
+              <FadeInView delay={0}>
+                <aside className="contact-details">
+                  <p className="eyebrow"><span />UFSBD Hérault</p>
+                  <h2>Nous sommes à votre écoute.</h2>
+                  <p>Décrivez-nous votre besoin. Nous reviendrons vers vous avec une réponse claire et adaptée à votre contexte.</p>
+                  <div className="contact-detail-list">
+                    <a href="mailto:ufsbd34@ufsbd.fr" className="transition-all hover:bg-slate-50 hover:scale-[1.02] hover:shadow-sm rounded-lg p-2 -ml-2"><span><Mail size={20} /></span><div><small>Email</small><strong>ufsbd34@ufsbd.fr</strong></div></a>
+                    <a href="tel:+33686306204" className="transition-all hover:bg-slate-50 hover:scale-[1.02] hover:shadow-sm rounded-lg p-2 -ml-2"><span><Phone size={20} /></span><div><small>Téléphone</small><strong>06 86 30 62 04</strong></div></a>
+                    <div className="p-2 -ml-2"><span><MapPin size={20} /></span><div><small>Adresse</small><strong>285 rue Alfred Nobel<br />34200 Montpellier</strong></div></div>
+                    <div className="p-2 -ml-2"><span><Clock3 size={20} /></span><div><small>Réponse</small><strong>Dans les meilleurs délais</strong></div></div>
                   </div>
-                ) : (
-                  <Button asChild className="btn-primary hidden md:inline-flex">
-                    <Link to="/auth">Connexion</Link>
-                  </Button>
-                )}
-              </nav>
-              
-              {/* Mobile Navigation */}
-              <div className="md:hidden">
-                <Button variant="ghost" size="icon" onClick={() => setShowMobileNav(!showMobileNav)}>
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                  </svg>
-                </Button>
-              </div>
-            </div>
-            
-            {/* Mobile Menu */}
-            {showMobileNav && (
-              <div className="md:hidden mt-4 pb-4 border-t border-gray-200">
-                <div className="flex flex-col space-y-3 pt-4">
-                  <Button variant="ghost" asChild className="justify-start hover:text-primary transition-colors">
-                    <Link to="/" onClick={() => setShowMobileNav(false)}>Accueil</Link>
-                  </Button>
-                  <Button variant="ghost" asChild className="justify-start hover:text-primary transition-colors">
-                    <Link to="/blog" onClick={() => setShowMobileNav(false)}>Actualités</Link>
-                  </Button>
-                  <Button variant="ghost" asChild className="justify-start hover:text-primary transition-colors">
-                    <Link to="/organigramme" onClick={() => setShowMobileNav(false)}>Organisation</Link>
-                  </Button>
-                  <Button variant="ghost" asChild className="justify-start hover:text-primary transition-colors bg-blue-100 text-blue-700">
-                    <Link to="/contact" onClick={() => setShowMobileNav(false)}>Contact</Link>
-                  </Button>
-                  {user ? (
-                    <>
-                      {(userRole === 'admin' || userRole === 'author') && (
-                        <Button variant="ghost" asChild className="justify-start hover:text-primary transition-colors">
-                          <Link to="/submit" onClick={() => setShowMobileNav(false)}>Écrire un article</Link>
-                        </Button>
-                      )}
-                      {userRole === 'admin' && (
-                        <Button variant="ghost" asChild className="justify-start hover:text-primary transition-colors">
-                          <Link to="/admin" onClick={() => setShowMobileNav(false)}>Admin</Link>
-                        </Button>
-                      )}
-                      <div className="px-3 py-2 text-sm text-muted-foreground border-t">
-                        Bonjour {user.email}
-                      </div>
-                      <Button variant="outline" onClick={() => { signOut(); setShowMobileNav(false); }} className="mx-3">
-                        Déconnexion
-                      </Button>
-                    </>
-                  ) : (
-                    <Button asChild className="btn-primary mx-3">
-                      <Link to="/auth" onClick={() => setShowMobileNav(false)}>Connexion</Link>
-                    </Button>
-                  )}
+                  <a className="contact-instagram transition-transform hover:scale-105" href="https://www.instagram.com/ufsbd34?igsh=NzR5YWduOHdqazUw" target="_blank" rel="noopener noreferrer"><Instagram size={18} />Suivre @ufsbd34</a>
+                </aside>
+              </FadeInView>
+              <FadeInView delay={150}>
+                <div className="contact-form-panel hover:shadow-xl transition-shadow duration-500">
+                  <div className="contact-form-panel__heading"><span>Votre demande</span><strong>Quelques informations suffisent pour commencer.</strong></div>
+                  <ContactForm title="Formulaire de contact" />
                 </div>
-              </div>
-            )}
-          </div>
-        </header>
-        <div className="container mx-auto px-4 py-8 max-w-2xl">
-          {/* Breadcrumb */}
-          <nav className="flex justify-center mb-6">
-            <ol className="flex items-center space-x-2 text-muted-foreground">
-              <li>
-                <Link to="/" className="hover:text-primary transition-colors">
-                  Accueil
-                </Link>
-              </li>
-              <li className="text-muted-foreground">/</li>
-              <li className="text-primary font-medium">Contact</li>
-            </ol>
-          </nav>
-
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold mb-4">Contactez-nous</h1>
-            <p className="text-xl text-muted-foreground">
-              N'hésitez pas à nous contacter pour toute question ou demande d'information
-            </p>
-          </div>
-
-          <div className="flex justify-center">
-            <ContactForm title="Formulaire de contact" />
-          </div>
-
-          <div className="mt-12 text-center space-y-4">
-            <h2 className="text-2xl font-semibold">Autres moyens de nous contacter</h2>
-            <div className="space-y-2 text-muted-foreground">
-              <p>📧 Email: ufsbd34@ufsbd.fr</p>
-              <p>📍 Adresse: 285 rue Alfred Nobel, 34200 Montpellier</p>
-              <p>📞 Téléphone: 06 86 30 62 04</p>
+              </FadeInView>
             </div>
-            <div className="flex items-center gap-2 mt-4">
-              <a href="https://www.instagram.com/ufsbd34?igsh=NzR5YWduOHdqazUw" target="_blank" rel="noopener noreferrer" title="Instagram">
-                <Instagram className="h-6 w-6 text-pink-500 hover:text-pink-700 transition-colors" />
-              </a>
-              <span className="text-muted-foreground">@ufsbd34</span>
-            </div>
-          </div>
-        </div>
+          </section>
+        </main>
         <Footer />
       </div>
     </>

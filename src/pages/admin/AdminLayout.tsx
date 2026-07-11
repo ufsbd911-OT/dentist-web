@@ -1,17 +1,19 @@
-import { Outlet } from 'react-router-dom';
+import { Link, Outlet } from 'react-router-dom';
+import { ArrowUpRight } from 'lucide-react';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AdminSidebar } from '@/components/AdminSidebar';
 
 export default function AdminLayout() {
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-white !bg-white">
+      <div className="admin-shell min-h-screen flex w-full">
         <AdminSidebar />
-        <main className="flex-1 overflow-hidden bg-white">
-          <header className="h-12 flex items-center border-b px-4">
-            <SidebarTrigger />
+        <main className="admin-main flex-1 overflow-hidden">
+          <header className="admin-topbar">
+            <div className="admin-topbar__title"><SidebarTrigger /><span>Administration UFSBD Hérault</span></div>
+            <Link to="/" className="admin-site-link">Voir le site <ArrowUpRight size={15} /></Link>
           </header>
-          <div className="p-6">
+          <div className="admin-content">
             <Outlet />
           </div>
         </main>

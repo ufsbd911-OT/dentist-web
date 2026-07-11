@@ -1,16 +1,17 @@
 import { useEffect, useState } from 'react';
-import { useParams, Navigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { MarkdownRenderer } from '@/components/MarkdownRenderer';
-import { useAuth } from '@/hooks/useAuth';
+import { Link, Navigate, useParams } from 'react-router-dom';
+import { ArrowLeft, CalendarDays, PenLine } from 'lucide-react';
 import { Helmet } from 'react-helmet';
+import { supabase } from '@/integrations/supabase/client';
+import { AutoScrollTape } from '@/components/AutoScrollTape';
 import { BulletproofBlogImage } from '@/components/BulletproofBlogImage';
-import { registerImageForMonitoring } from '@/lib/image-health-monitor';
+import { Footer } from '@/components/Footer';
+import { MarkdownRenderer } from '@/components/MarkdownRenderer';
+import { SiteHeader } from '@/components/SiteHeader';
+import { FadeInView } from '@/components/FadeInView';
+import { useAuth } from '@/hooks/useAuth';
 import { bulletproofImageCache } from '@/lib/bulletproof-image-cache';
+import { registerImageForMonitoring } from '@/lib/image-health-monitor';
 
 interface Post {
   id: string;
@@ -22,268 +23,111 @@ interface Post {
   image?: string;
 }
 
-// Helper function to strip images from content if we're showing a cover image
-const stripImagesFromContent = (content: string, hascoverImage: boolean): string => {
-  if (!content || !hascoverImage) return content;
-  
-  // Remove HTML img tags
-  let cleanContent = content.replace(/<img[^>]*>/gi, '');
-  
-  // Remove markdown images
-  cleanContent = cleanContent.replace(/!\[.*?\]\(.*?\)/g, '');
-  
-  // Clean up any extra whitespace or empty paragraphs left behind
-  cleanContent = cleanContent.replace(/<p>\s*<\/p>/gi, '');
-  cleanContent = cleanContent.replace(/^\s+|\s+$/gm, '');
-  
-  return cleanContent;
+const stripCoverImages = (content: string, hasCoverImage: boolean) => {
+  if (!content || !hasCoverImage) return content;
+  return content
+    .replace(/<img[^>]*>/gi, '')
+    .replace(/!\[.*?\]\(.*?\)/g, '')
+    .replace(/<p>\s*<\/p>/gi, '')
+    .replace(/^\s+|\s+$/gm, '');
 };
+
+const descriptionFrom = (content = '') => content
+  .replace(/<[^>]*>/g, ' ')
+  .replace(/[#*_>`~|-]/g, ' ')
+  .replace(/\s+/g, ' ')
+  .trim()
+  .slice(0, 155);
 
 export default function BlogPost() {
   const { id } = useParams<{ id: string }>();
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
-  const [showMobileNav, setShowMobileNav] = useState(false);
-  const { user, userRole, signOut } = useAuth();
-  const pageHelmet = (
-    <Helmet>
-      <title>{post?.title ? `${post.title} | UFSBD` : 'Article de blog | UFSBD'}</title>
-      <meta name="description" content={post?.excerpt || 'Lire cet article de blog sur la santé dentaire proposé par UFSBD.'} />
-      {id && <link rel="canonical" href={`https://ufsbd34.fr/blog/${id}`} />}
-      <meta property="og:title" content={post?.title ? `${post.title} | UFSBD` : 'Article de blog | UFSBD'} />
-      <meta property="og:description" content={post?.excerpt || 'Lire cet article de blog sur la santé dentaire proposé par UFSBD.'} />
-      {id && <meta property="og:url" content={`https://ufsbd34.fr/blog/${id}`} />}
-      <meta name="twitter:title" content={post?.title ? `${post.title} | UFSBD` : 'Article de blog | UFSBD'} />
-      <meta name="twitter:description" content={post?.excerpt || 'Lire cet article de blog sur la santé dentaire proposé par UFSBD.'} />
-    </Helmet>
-  );
+  const { userRole } = useAuth();
 
   useEffect(() => {
-    if (id) {
-      fetchPost(id);
-    }
-  }, [id]);
-
-  const fetchPost = async (postId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('posts')
-        .select('*')
-        .eq('id', postId)
-        .eq('status', 'approved')
-        .single();
-
-      if (error) {
-        if (error.code === 'PGRST116') {
+    if (!id) return;
+    const fetchPost = async () => {
+      try {
+        const { data, error } = await supabase.from('posts').select('*').eq('id', id).eq('status', 'approved').single();
+        if (error) {
           setNotFound(true);
-        } else {
-          console.error('Error fetching post:', error);
+          return;
         }
-      } else {
         setPost(data);
-        
-        // Register image for monitoring and preload
         if (data.image) {
-          registerImageForMonitoring(data.image, {
-            title: data.title,
-            category: data.category,
-            postId: data.id
-          });
-          
-          // Preload image for instant display
+          registerImageForMonitoring(data.image, { title: data.title, category: data.category, postId: data.id });
           bulletproofImageCache.preload(data.image);
-          
-          console.log('📄 BlogPost loaded:', data.title);
-          console.log('📷 Image registered for monitoring:', data.image);
         }
+      } catch (error) {
+        console.error('Error fetching post:', error);
+        setNotFound(true);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error('Error fetching post:', error);
-      setNotFound(true);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+    fetchPost();
+  }, [id]);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        {pageHelmet}
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex items-center justify-center p-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          </div>
-        </div>
+      <div className="public-site internal-page article-page">
+        <SiteHeader />
+        <main className="article-loading site-container"><div /><span /><span /></main>
+        <Footer />
       </div>
     );
   }
 
-  if (notFound || !post) {
-    return (
-      <>
-        {pageHelmet}
-        <Navigate to="/blog" replace />
-      </>
-    );
-  }
+  if (notFound || !post) return <Navigate to="/blog" replace />;
+
+  const description = descriptionFrom(post.content) || 'Article UFSBD Hérault consacré à la santé bucco-dentaire.';
+  const date = new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }).format(new Date(post.created_at));
 
   return (
     <>
-      {pageHelmet}
-      <div className="min-h-screen bg-background">
-        {/* Navigation Bar */}
-        <header className="bg-white/95 backdrop-blur-sm border-b shadow-sm sticky top-0 z-50">
-          <div className="container mx-auto px-4 py-3 md:py-4">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center">
-                <Link to="/">
-                  <img 
-                    src="/ufsbd-logo-new.jpg" 
-                    alt="UFSBD Logo" 
-                    className="h-12 md:h-16 w-auto hover:scale-105 transition-transform cursor-pointer" 
-                  />
-                </Link>
+      <Helmet>
+        <title>{post.title} | UFSBD Hérault</title>
+        <meta name="description" content={description} />
+        <link rel="canonical" href={`https://ufsbd34.fr/blog/${post.id}`} />
+        <meta property="og:title" content={`${post.title} | UFSBD Hérault`} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content={`https://ufsbd34.fr/blog/${post.id}`} />
+      </Helmet>
+      <div className="public-site internal-page article-page">
+        <SiteHeader />
+        <main>
+          <header className="article-editorial-header overflow-hidden">
+            <FadeInView className="site-container article-editorial-header__inner">
+              <nav className="breadcrumb" aria-label="Fil d’Ariane"><Link to="/">Accueil</Link><span>/</span><Link to="/blog">Actualités</Link><span>/</span><span>{post.category}</span></nav>
+              <div className="article-editorial-header__meta"><span>{post.category}</span><time><CalendarDays size={16} />{date}</time></div>
+              <h1>{post.title}</h1>
+              <div className="article-editorial-header__actions">
+                <Link to="/blog" className="transition-transform hover:-translate-x-1"><ArrowLeft size={17} />Toutes les actualités</Link>
+                {(userRole === 'admin' || userRole === 'author') && <Link to={`/edit/${post.id}`} className="transition-transform hover:scale-105"><PenLine size={16} />Modifier l’article</Link>}
               </div>
-              {/* Desktop Navigation */}
-              <nav className="hidden md:flex items-center space-x-4">
-                <Button variant="ghost" asChild className="hover:text-primary transition-colors">
-                  <Link to="/">Accueil</Link>
-                </Button>
-                <Button variant="ghost" asChild className="hover:text-primary transition-colors bg-blue-100 text-blue-700">
-                  <Link to="/blog">Actualités</Link>
-                </Button>
-                <Button variant="ghost" asChild className="hover:text-primary transition-colors">
-                  <Link to="/organigramme">Organisation</Link>
-                </Button>
-                <Button variant="ghost" asChild className="hover:text-primary transition-colors">
-                  <Link to="/contact">Contact</Link>
-                </Button>
-                {user ? (
-                  <div className="hidden md:flex items-center space-x-4">
-                    {(userRole === 'admin' || userRole === 'author') && (
-                      <Button variant="ghost" asChild className="hover:text-primary transition-colors">
-                        <Link to="/submit">Écrire un article</Link>
-                      </Button>
-                    )}
-                    {userRole === 'admin' && (
-                      <Button variant="ghost" asChild className="hover:text-primary transition-colors">
-                        <Link to="/admin">Admin</Link>
-                      </Button>
-                    )}
-                    <span className="text-sm text-muted-foreground">Bonjour {user.email}</span>
-                    <Button variant="outline" onClick={signOut} className="hover:bg-primary hover:text-white transition-colors">
-                      Déconnexion
-                    </Button>
-                  </div>
-                ) : (
-                  <Button asChild className="btn-primary hidden md:inline-flex">
-                    <Link to="/auth">Connexion</Link>
-                  </Button>
-                )}
-              </nav>
-              {/* Mobile Navigation */}
-              <div className="md:hidden">
-                <Button variant="ghost" size="icon" onClick={() => setShowMobileNav(!showMobileNav)}>
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                  </svg>
-                </Button>
-              </div>
-            </div>
-            {/* Mobile Menu */}
-            {showMobileNav && (
-              <div className="md:hidden mt-4 pb-4 border-t border-gray-200">
-                <div className="flex flex-col space-y-3 pt-4">
-                  <Button variant="ghost" asChild className="justify-start hover:text-primary transition-colors">
-                    <Link to="/" onClick={() => setShowMobileNav(false)}>Accueil</Link>
-                  </Button>
-                  <Button variant="ghost" asChild className="justify-start hover:text-primary transition-colors bg-blue-100 text-blue-700">
-                    <Link to="/blog" onClick={() => setShowMobileNav(false)}>Actualités</Link>
-                  </Button>
-                  <Button variant="ghost" asChild className="justify-start hover:text-primary transition-colors">
-                    <Link to="/organigramme" onClick={() => setShowMobileNav(false)}>Organisation</Link>
-                  </Button>
-                  <Button variant="ghost" asChild className="justify-start hover:text-primary transition-colors">
-                    <Link to="/contact" onClick={() => setShowMobileNav(false)}>Contact</Link>
-                  </Button>
-                  {user ? (
-                    <>
-                      {(userRole === 'admin' || userRole === 'author') && (
-                        <Button variant="ghost" asChild className="justify-start hover:text-primary transition-colors">
-                          <Link to="/submit" onClick={() => setShowMobileNav(false)}>Écrire un article</Link>
-                        </Button>
-                      )}
-                      {userRole === 'admin' && (
-                        <Button variant="ghost" asChild className="justify-start hover:text-primary transition-colors">
-                          <Link to="/admin" onClick={() => setShowMobileNav(false)}>Admin</Link>
-                        </Button>
-                      )}
-                      <div className="px-3 py-2 text-sm text-muted-foreground border-t">
-                        Bonjour {user.email}
-                      </div>
-                      <Button variant="outline" onClick={() => { signOut(); setShowMobileNav(false); }} className="mx-3">
-                        Déconnexion
-                      </Button>
-                    </>
-                  ) : (
-                    <Button asChild className="btn-primary mx-3">
-                      <Link to="/auth" onClick={() => setShowMobileNav(false)}>Connexion</Link>
-                    </Button>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-        </header>
-        <div className="container mx-auto px-4 py-8 max-w-4xl">
-          {/* Breadcrumb */}
-          <nav className="flex justify-center mb-6">
-            <ol className="flex items-center space-x-2 text-muted-foreground">
-              <li>
-                <Link to="/" className="hover:text-primary transition-colors">
-                  Accueil
-                </Link>
-              </li>
-              <li className="text-muted-foreground">/</li>
-              <li>
-                <Link to="/blog" className="hover:text-primary transition-colors">
-                  Actualités
-                </Link>
-              </li>
-              <li className="text-muted-foreground">/</li>
-              <li className="text-primary font-medium">{post?.title || 'Article'}</li>
-            </ol>
-          </nav>
-          <Button variant="outline" asChild className="mb-6">
-            <Link to="/blog" className="flex items-center gap-2">
-              <ArrowLeft className="h-4 w-4" />
-              Retour aux articles
-            </Link>
-          </Button>
-          <article className="space-y-6">
-            <header className="space-y-4">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Badge variant="secondary">{post.category}</Badge>
-                <span>•</span>
-                <time>{new Date(post.created_at).toLocaleDateString()}</time>
-              </div>
-              <h1 className="text-4xl font-bold leading-tight">{post.title}</h1>
-            </header>
-            {post.image && (
-              <BulletproofBlogImage
-                src={post.image}
-                alt={post.title}
-                title={post.title}
-                postId={post.id}
-                className="aspect-video overflow-hidden rounded-lg"
-              />
-            )}
-            <div className="prose prose-lg max-w-none">
-              <MarkdownRenderer content={stripImagesFromContent(post.content, !!post.image)} />
-            </div>
-          </article>
-        </div>
+            </FadeInView>
+          </header>
+
+          {post.image && (
+            <FadeInView delay={150} className="site-container article-cover-wrap">
+              <BulletproofBlogImage src={post.image} alt={post.title} title={post.title} postId={post.id} className="article-cover" />
+            </FadeInView>
+          )}
+
+          <AutoScrollTape items={['Conseils fiables', 'Prévention au quotidien', 'Comprendre pour mieux agir', 'UFSBD Hérault']} tone="light" direction="right" label="Repères éditoriaux" />
+
+          <section className="article-reading-section overflow-hidden">
+            <FadeInView className="site-container article-reading-grid">
+              <aside className="article-reading-aside"><span>Lecture</span><strong>{post.category}</strong><p>Une information proposée par l’UFSBD Hérault.</p></aside>
+              <article className="article-prose prose prose-lg max-w-none">
+                <MarkdownRenderer content={stripCoverImages(post.content, !!post.image)} />
+              </article>
+            </FadeInView>
+          </section>
+        </main>
+        <Footer />
       </div>
     </>
   );

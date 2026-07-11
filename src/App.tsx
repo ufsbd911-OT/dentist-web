@@ -8,8 +8,8 @@ import "./components/rich-text-editor.css";
 import { AuthProvider } from "./hooks/useAuth";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { ErrorBoundary } from "./components/ErrorBoundary";
-import { DebugInfo } from "./components/DebugInfo";
 import { GlobalImageReplacer } from "./lib/global-image-replacer";
+import { RouteExperience } from "./components/RouteExperience";
 
 // Lazy load components with error boundaries
 const Index = lazy(() => import("./pages/Index").catch(() => ({ default: () => <FallbackPage title="Home Page" /> })));
@@ -141,6 +141,7 @@ const App = () => {
             <Toaster />
             <Sonner />
             <BrowserRouter>
+              <RouteExperience />
               <Routes>
                 <Route path="/" element={<SafeRoute><Index /></SafeRoute>} />
                 <Route path="/auth" element={<SafeRoute><Auth /></SafeRoute>} />
@@ -201,7 +202,6 @@ const App = () => {
                 <Route path="*" element={<SafeRoute><NotFound /></SafeRoute>} />
               </Routes>
             </BrowserRouter>
-            {import.meta.env.DEV && <DebugInfo />}
           </TooltipProvider>
         </AuthProvider>
       </QueryClientProvider>

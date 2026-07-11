@@ -61,8 +61,11 @@ export function AdminSidebar() {
   });
 
   return (
-    <Sidebar className={collapsed ? 'w-14' : 'w-60'} collapsible="icon">
-      <SidebarTrigger className="m-2 self-end" />
+    <Sidebar className={`admin-sidebar ${collapsed ? 'w-14' : 'w-60'}`} collapsible="icon">
+      <div className="admin-sidebar__brand">
+        {!collapsed && <img src="/ufsbd-logo-new.jpg" alt="UFSBD Hérault 34" />}
+        <SidebarTrigger className="admin-sidebar__trigger" />
+      </div>
       
       <SidebarContent>
         {/* Admin Section */}

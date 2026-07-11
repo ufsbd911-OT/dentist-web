@@ -151,6 +151,7 @@ export default function WriteBlog() {
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white py-12">
         <div className="container mx-auto px-4">
+          <Link to="/" className="editor-brand"><img src="/ufsbd-logo-new.jpg" alt="UFSBD Hérault 34" /></Link>
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-bold mb-4 drop-shadow-lg flex items-center">

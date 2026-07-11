@@ -215,7 +215,7 @@ export default function Gallery() {
   }
   
   return (
-    <div className="space-y-6">
+    <div className="admin-page admin-gallery-page space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <FolderOpen className="h-6 w-6" />

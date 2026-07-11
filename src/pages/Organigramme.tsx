@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -6,11 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Users, UserCheck, Award, Building2, Heart, BookOpen, Shield, Crown, UserCog } from 'lucide-react';
 import { OrganigramService, type OrganigramMember } from '@/lib/organigram';
 import { OrganigrammeCard } from '@/components/OrganigrammeCard';
+import { FadeInView } from '@/components/FadeInView';
 import { useAuth } from '@/hooks/useAuth';
 import { Tree } from '@minoru/react-dnd-treeview';
 import { Footer } from '@/components/Footer';
 import { convertToPublicUrl } from '@/lib/utils';
 import { Helmet } from 'react-helmet';
+import { SiteHeader } from '@/components/SiteHeader';
 
 export default function Organigramme() {
   const [orgData, setOrgData] = useState<OrganigramMember[]>([]);
@@ -166,6 +168,11 @@ export default function Organigramme() {
     ['vicePresidents', 'chargesMission', 'verificateur'].includes(member.role)
   );
 
+  const createMarqueeItems = (items: OrganigramMember[]) => {
+    // Repeat items enough times to ensure smooth infinite scrolling even on large screens
+    return [...items, ...items, ...items, ...items];
+  };
+
   const treeData = orgData.map(member => ({
     id: member.id,
     parent: member.parent_id ?? 0,
@@ -181,216 +188,130 @@ export default function Organigramme() {
     : undefined;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50/30 to-white">
+    <div className="public-site internal-page organization-page min-h-screen ambient-gradient">
       {pageHelmet}
-      {/* Navigation Bar */}
-      <header className="bg-white/95 backdrop-blur-sm border-b shadow-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-3 md:py-4">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center">
-              <Link to="/">
-                <img 
-                  src="/lovable-uploads/ab742599-8097-48dc-a1b3-6d031d2f9718.png" 
-                  alt="UFSBD Logo" 
-                  className="h-12 md:h-16 w-auto hover:scale-105 transition-transform cursor-pointer" 
-                />
-              </Link>
-            </div>
-            
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center space-x-4">
-              <Button variant="ghost" asChild className="hover:text-primary transition-colors">
-                <Link to="/">Accueil</Link>
-              </Button>
-              <Button variant="ghost" asChild className="hover:text-primary transition-colors">
-                <Link to="/blog">Actualités</Link>
-              </Button>
-              <Button variant="ghost" asChild className="hover:text-primary transition-colors bg-blue-100 text-blue-700">
-                <Link to="/organigramme">Organisation</Link>
-              </Button>
-              <Button variant="ghost" asChild className="hover:text-primary transition-colors">
-                <Link to="/contact">Contact</Link>
-              </Button>
-              {user ? (
-                <div className="hidden md:flex items-center space-x-4">
-                  {(userRole === 'admin' || userRole === 'author') && (
-                    <Button variant="ghost" asChild className="hover:text-primary transition-colors">
-                      <Link to="/submit">Écrire un article</Link>
-                    </Button>
-                  )}
-                  {userRole === 'admin' && (
-                    <Button variant="ghost" asChild className="hover:text-primary transition-colors">
-                      <Link to="/admin">Admin</Link>
-                    </Button>
-                  )}
-                  <span className="text-sm text-muted-foreground">Bonjour {user.email}</span>
-                  <Button variant="outline" onClick={signOut} className="hover:bg-primary hover:text-white transition-colors">
-                    Déconnexion
-                  </Button>
-                </div>
-              ) : (
-                <Button asChild className="btn-primary hidden md:inline-flex">
-                  <Link to="/auth">Connexion</Link>
-                </Button>
-              )}
-            </nav>
-            
-            {/* Mobile Navigation */}
-            <div className="md:hidden">
-              <Button variant="ghost" size="icon" onClick={() => setShowMobileNav(!showMobileNav)}>
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              </Button>
-            </div>
-          </div>
-          
-          {/* Mobile Menu */}
-          {showMobileNav && (
-            <div className="md:hidden mt-4 pb-4 border-t border-gray-200">
-              <div className="flex flex-col space-y-3 pt-4">
-                <Button variant="ghost" asChild className="justify-start hover:text-primary transition-colors">
-                  <Link to="/" onClick={() => setShowMobileNav(false)}>Accueil</Link>
-                </Button>
-                <Button variant="ghost" asChild className="justify-start hover:text-primary transition-colors">
-                  <Link to="/blog" onClick={() => setShowMobileNav(false)}>Actualités</Link>
-                </Button>
-                <Button variant="ghost" asChild className="justify-start hover:text-primary transition-colors bg-blue-100 text-blue-700">
-                  <Link to="/organigramme" onClick={() => setShowMobileNav(false)}>Organisation</Link>
-                </Button>
-                <Button variant="ghost" asChild className="justify-start hover:text-primary transition-colors">
-                  <Link to="/contact" onClick={() => setShowMobileNav(false)}>Contact</Link>
-                </Button>
-                {user ? (
-                  <>
-                    {(userRole === 'admin' || userRole === 'author') && (
-                      <Button variant="ghost" asChild className="justify-start hover:text-primary transition-colors">
-                        <Link to="/submit" onClick={() => setShowMobileNav(false)}>Écrire un article</Link>
-                      </Button>
-                    )}
-                    {userRole === 'admin' && (
-                      <Button variant="ghost" asChild className="justify-start hover:text-primary transition-colors">
-                        <Link to="/admin" onClick={() => setShowMobileNav(false)}>Admin</Link>
-                      </Button>
-                    )}
-                    <div className="px-3 py-2 text-sm text-muted-foreground border-t">
-                      Bonjour {user.email}
-                    </div>
-                    <Button variant="outline" onClick={() => { signOut(); setShowMobileNav(false); }} className="mx-3">
-                      Déconnexion
-                    </Button>
-                  </>
-                ) : (
-                  <Button asChild className="btn-primary mx-3">
-                    <Link to="/auth" onClick={() => setShowMobileNav(false)}>Connexion</Link>
-                  </Button>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-      </header>
+      <SiteHeader />
 
       {/* Page Header */}
-      <header className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white py-16">
-        <div className="container mx-auto px-4 text-center">
-          {/* Breadcrumb */}
-          <nav className="flex justify-center mb-6">
-            <ol className="flex items-center space-x-2 text-blue-100">
-              <li>
-                <Link to="/" className="hover:text-white transition-colors">
-                  Accueil
-                </Link>
-              </li>
-              <li className="text-blue-200">/</li>
-              <li className="text-white font-medium">Organigramme</li>
-            </ol>
+      <header className="internal-hero text-center relative overflow-hidden">
+        {/* Subtle decorative background elements */}
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+          <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[150%] rounded-full bg-blue-100/40 blur-3xl mix-blend-multiply opacity-70"></div>
+          <div className="absolute top-[20%] -right-[10%] w-[40%] h-[120%] rounded-full bg-cyan-100/40 blur-3xl mix-blend-multiply opacity-70"></div>
+        </div>
+
+        <div className="site-container relative z-10">
+          <nav className="breadcrumb justify-center">
+            <Link to="/">Accueil</Link>
+            <span>/</span>
+            <span>Organisation</span>
           </nav>
           
-          <h1 className="text-5xl font-bold mb-4 drop-shadow-lg">Organigramme UFSBD</h1>
-          <p className="text-xl text-blue-100 drop-shadow-md">
-            Section Hérault - Structure organisationnelle
-          </p>
-          <p className="text-blue-200 mt-2">
-            Notre équipe dédiée à la santé bucco-dentaire
-          </p>
+          <FadeInView>
+            <h1 className="mx-auto text-white font-bold mb-5 drop-shadow-md">
+              Organigramme <span className="text-cyan-300">UFSBD</span>
+            </h1>
+            <p className="text-blue-100 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed drop-shadow">
+              Section Hérault - Notre équipe dédiée à la santé bucco-dentaire
+            </p>
+          </FadeInView>
         </div>
-      </header>
-
-      <div className="container mx-auto px-4 py-16">
-          {/* Président */}
-          {president && (
-          <div className="mb-20">
-            <h2 className="text-3xl font-bold text-center mb-12 gradient-text">Présidence</h2>
+      </header>          
+      <div className="site-container py-20 md:py-28 overflow-hidden">
+        {/* Président */}
+        {president && (
+          <div className="mb-28">
+            <FadeInView>
+              <div className="flex items-center justify-center gap-6 mb-12">
+                <div className="h-[2px] w-12 bg-blue-200 rounded-full"></div>
+                <h2 className="text-3xl md:text-4xl font-bold text-slate-800 tracking-tight font-['Bricolage_Grotesque']">Présidence</h2>
+                <div className="h-[2px] w-12 bg-blue-200 rounded-full"></div>
+              </div>
+            </FadeInView>
             <div className="flex justify-center">
-              <div className="max-w-md">
-                <OrganigrammeCard member={president} onUpdated={fetchOrgData} editable={canEdit} />
+              <div className="w-full max-w-md">
+                <FadeInView delay={150}>
+                  <OrganigrammeCard member={president} onUpdated={fetchOrgData} editable={canEdit} />
+                </FadeInView>
               </div>
-              </div>
+            </div>
           </div>
         )}
 
         {/* Bureau Exécutif */}
         {bureauMembers.length > 0 && (
-          <div className="mb-20">
-            <h2 className="text-3xl font-bold text-center mb-12 gradient-text">Bureau Exécutif</h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
-              {bureauMembers.map((member) => (
-                <OrganigrammeCard key={member.id} member={member} onUpdated={fetchOrgData} editable={canEdit} />
-              ))}
-                </div>
+          <div className="mb-28">
+            <FadeInView>
+              <div className="flex items-center justify-center gap-6 mb-12">
+                <div className="h-[2px] w-12 bg-cyan-200 rounded-full"></div>
+                <h2 className="text-3xl md:text-4xl font-bold text-slate-800 tracking-tight font-['Bricolage_Grotesque']">Bureau Exécutif</h2>
+                <div className="h-[2px] w-12 bg-cyan-200 rounded-full"></div>
               </div>
-        )}
-
-        {/* Autres Membres */}
-        {otherMembers.length > 0 && (
-          <div className="mb-20">
-            <h2 className="text-3xl font-bold text-center mb-12 gradient-text">Équipe de Direction</h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-              {otherMembers.map((member) => (
-                <OrganigrammeCard key={member.id} member={member} onUpdated={fetchOrgData} editable={canEdit} />
-              ))}
+            </FadeInView>
+            <div className="relative overflow-visible w-full pause-on-hover py-4">
+              {/* Fade edges */}
+              <div className="absolute inset-y-0 left-0 w-12 md:w-24 bg-gradient-to-r from-slate-50 to-transparent z-20 pointer-events-none"></div>
+              <div className="absolute inset-y-0 right-0 w-12 md:w-24 bg-gradient-to-l from-slate-50 to-transparent z-20 pointer-events-none"></div>
+              
+              <div className="animate-tape-scroll gap-6">
+                {createMarqueeItems(bureauMembers).map((member, index) => (
+                  <div key={`${member.id}-${index}`} className="w-[280px] md:w-[320px] flex-shrink-0 h-full">
+                    <OrganigrammeCard member={member} onUpdated={fetchOrgData} editable={canEdit} />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}
 
-        {/* Tous les Membres (Vue d'ensemble) */}
-        {orgData.length > 0 && (
-          <div className="mb-20">
-            <h2 className="text-3xl font-bold text-center mb-12 gradient-text">Vue d'Ensemble</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-              {orgData.map((member) => (
-                <OrganigrammeCard key={member.id} member={member} onUpdated={fetchOrgData} editable={canEdit} />
-            ))}
+        {/* Autres Membres */}
+        {otherMembers.length > 0 && (
+          <div className="mb-28">
+            <FadeInView>
+              <div className="flex items-center justify-center gap-6 mb-12">
+                <div className="h-[2px] w-12 bg-purple-200 rounded-full"></div>
+                <h2 className="text-3xl md:text-4xl font-bold text-slate-800 tracking-tight font-['Bricolage_Grotesque']">Équipe de Direction</h2>
+                <div className="h-[2px] w-12 bg-purple-200 rounded-full"></div>
+              </div>
+            </FadeInView>
+            <div className="relative overflow-visible w-full pause-on-hover py-4">
+              {/* Fade edges */}
+              <div className="absolute inset-y-0 left-0 w-12 md:w-24 bg-gradient-to-r from-slate-50 to-transparent z-20 pointer-events-none"></div>
+              <div className="absolute inset-y-0 right-0 w-12 md:w-24 bg-gradient-to-l from-slate-50 to-transparent z-20 pointer-events-none"></div>
+              
+              <div className="animate-tape-scroll gap-6" style={{ animationDirection: 'reverse' }}>
+                {createMarqueeItems(otherMembers).map((member, index) => (
+                  <div key={`${member.id}-${index}`} className="w-[280px] md:w-[320px] flex-shrink-0 h-full">
+                    <OrganigrammeCard member={member} onUpdated={fetchOrgData} editable={canEdit} />
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
         )}
 
-        {/* Contact */}
-        <div className="text-center">
-          <Card className="bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200 max-w-2xl mx-auto">
-            <CardHeader>
-              <CardTitle className="text-2xl gradient-text">Contact</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <p className="text-gray-700">
-                <strong>UFSBD Section Hérault</strong>
-              </p>
-              <p className="text-gray-600">
-                📧 Email: ufsbd34@ufsbd.fr
-              </p>
-              <p className="text-gray-600">
-                📍 285 rue Alfred Nobel, 34200 Montpellier
-              </p>
-              <p className="text-gray-600">
-                📞 Téléphone: 06 86 30 62 04
-              </p>
-              <p className="text-sm text-gray-500 mt-4">
-                Pour toute information sur notre organisation ou nos missions
-              </p>
-            </CardContent>
-          </Card>
-        </div>
+        {/* Contact CTA */}
+        <FadeInView delay={200}>
+          <div className="text-center mt-32">
+            <Card className="bg-gradient-to-br from-blue-600 to-cyan-500 border-0 max-w-3xl mx-auto rounded-3xl overflow-hidden shadow-2xl relative">
+              <div className="absolute inset-0 bg-[url('/pattern.svg')] opacity-10 mix-blend-overlay"></div>
+              <CardContent className="p-12 md:p-16 relative z-10 text-white space-y-6">
+                <h2 className="text-3xl font-bold font-['Bricolage_Grotesque'] mb-6 text-white drop-shadow-md">Besoin d'informations supplémentaires ?</h2>
+                <p className="text-blue-50 text-lg max-w-xl mx-auto leading-relaxed mb-8">
+                  Notre équipe se tient à votre disposition pour répondre à toutes vos questions concernant nos actions et notre organisation.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                  <Link to="/contact" className="bg-white text-blue-700 px-8 py-4 rounded-xl font-bold hover:bg-blue-50 hover:scale-105 transition-all duration-300 shadow-lg">
+                    Contactez-nous
+                  </Link>
+                  <a href="mailto:ufsbd34@ufsbd.fr" className="bg-blue-800/40 text-white px-8 py-4 rounded-xl font-bold hover:bg-blue-800/60 backdrop-blur-sm transition-all duration-300 border border-white/20">
+                    ufsbd34@ufsbd.fr
+                  </a>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </FadeInView>
       </div>
       <Footer />
     </div>

@@ -1,15 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { useAuth } from '@/hooks/useAuth';
-import { MarkdownRenderer } from '@/components/MarkdownRenderer';
+import { ArrowRight, Clock3, Newspaper } from 'lucide-react';
 import { Helmet } from 'react-helmet';
-import { useToast } from '@/hooks/use-toast';
-import { Footer } from '@/components/Footer';
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { AutoScrollTape } from '@/components/AutoScrollTape';
 import { BulletproofBlogImage } from '@/components/BulletproofBlogImage';
+import { Footer } from '@/components/Footer';
+import { SiteHeader } from '@/components/SiteHeader';
+import { FadeInView } from '@/components/FadeInView';
+import { useToast } from '@/hooks/use-toast';
 import { preloadBlogImages } from '@/lib/bulletproof-image-cache';
 import { registerImageForMonitoring } from '@/lib/image-health-monitor';
 
@@ -21,123 +21,104 @@ interface Post {
   author_email: string;
   created_at: string;
   image?: string;
+  status?: string;
 }
 
-// Helper function to strip images from content preview
-const stripImagesFromContent = (content: string): string => {
+const createExcerpt = (content: string, maxLength = 190) => {
   if (!content) return '';
-  
-  // Remove HTML img tags
-  let cleanContent = content.replace(/<img[^>]*>/gi, '');
-  
-  // Remove markdown images
-  cleanContent = cleanContent.replace(/!\[.*?\]\(.*?\)/g, '');
-  
-  // Clean up any extra whitespace or empty paragraphs left behind
-  cleanContent = cleanContent.replace(/<p>\s*<\/p>/gi, '');
-  cleanContent = cleanContent.replace(/^\s+|\s+$/gm, '');
-  
-  return cleanContent;
+  const clean = content
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+    .replace(/[#*_>`~|-]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return clean.length > maxLength ? `${clean.slice(0, maxLength).trim()}…` : clean;
 };
+
+const formatDate = (date: string) => new Intl.DateTimeFormat('fr-FR', {
+  day: '2-digit',
+  month: 'long',
+  year: 'numeric',
+}).format(new Date(date));
 
 export default function Blog() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showMobileNav, setShowMobileNav] = useState(false);
-  const { user, userRole, signOut } = useAuth();
+  const [activeCategory, setActiveCategory] = useState('Tous');
   const { toast } = useToast();
-  const pageHelmet = (
-    <Helmet>
-      <title>Blog | UFSBD</title>
-      <meta name="description" content="Découvrez les derniers articles, conseils et actualités sur la santé dentaire par UFSBD." />
-      <link rel="canonical" href="https://ufsbd34.fr/blog" />
-      <meta property="og:title" content="Blog | UFSBD" />
-      <meta property="og:description" content="Découvrez les derniers articles, conseils et actualités sur la santé dentaire par UFSBD." />
-      <meta property="og:url" content="https://ufsbd34.fr/blog" />
-      <meta name="twitter:title" content="Blog | UFSBD" />
-      <meta name="twitter:description" content="Découvrez les derniers articles, conseils et actualités sur la santé dentaire par UFSBD." />
-    </Helmet>
-  );
-
-  useEffect(() => {
-    fetchApprovedPosts();
-  }, []);
 
   const fetchApprovedPosts = async () => {
     try {
       setLoading(true);
       setError(null);
-      
-      const { data, error } = await supabase
+      const { data, error: fetchError } = await supabase
         .from('posts')
         .select('*')
         .eq('status', 'approved')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      
+      if (fetchError) throw fetchError;
       const postsData = data || [];
       setPosts(postsData);
-      
-      // Debug logging
-      console.log('📚 Blog posts fetched:', postsData.length);
-      postsData.forEach((post, index) => {
-        console.log(`   ${index + 1}. "${post.title}"`);
-        console.log(`      Image: ${post.image ? 'YES (' + post.image + ')' : 'NO'}`);
-        console.log(`      Status: ${post.status}`);
-        
-        // Register images for monitoring and preload them
+      postsData.forEach((post) => {
         if (post.image) {
-          registerImageForMonitoring(post.image, {
-            title: post.title,
-            category: post.category,
-            postId: post.id
-          });
+          registerImageForMonitoring(post.image, { title: post.title, category: post.category, postId: post.id });
         }
       });
-      
-      // Preload all blog images for ultra-fast loading
       await preloadBlogImages(postsData);
-      
-    } catch (error) {
-      console.error('Error fetching posts:', error);
-      setError('Erreur lors du chargement des articles');
-      toast({
-        title: "Erreur",
-        description: "Impossible de charger les articles. Veuillez réessayer.",
-        variant: "destructive"
-      });
+    } catch (fetchError) {
+      console.error('Error fetching posts:', fetchError);
+      setError('Impossible de charger les articles pour le moment.');
+      toast({ title: 'Erreur', description: 'Impossible de charger les articles. Veuillez réessayer.', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    fetchApprovedPosts();
+  }, []);
+
+  const categories = useMemo(() => ['Tous', ...Array.from(new Set(posts.map((post) => post.category).filter(Boolean)))], [posts]);
+  const filteredPosts = activeCategory === 'Tous' ? posts : posts.filter((post) => post.category === activeCategory);
+  const featuredPost = filteredPosts[0];
+  const remainingPosts = filteredPosts.slice(1);
+
+  const pageHelmet = (
+    <Helmet>
+      <title>Actualités et conseils | UFSBD Hérault</title>
+      <meta name="description" content="Retrouvez les actualités, actions de terrain et conseils de prévention bucco-dentaire de l’UFSBD Hérault." />
+      <link rel="canonical" href="https://ufsbd34.fr/blog" />
+      <meta property="og:title" content="Actualités et conseils | UFSBD Hérault" />
+      <meta property="og:description" content="Actualités, prévention et actions de terrain de l’UFSBD Hérault." />
+      <meta property="og:url" content="https://ufsbd34.fr/blog" />
+    </Helmet>
+  );
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        {pageHelmet}
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex items-center justify-center p-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          </div>
-        </div>
+      <div className="public-site internal-page blog-page min-h-screen">
+        {pageHelmet}<SiteHeader />
+        <main className="blog-loading site-container" aria-live="polite">
+          <div className="blog-loading__title" /><div className="blog-loading__lead" />
+          <div className="blog-loading__grid"><span /><span /><span /></div>
+        </main>
+        <Footer />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-background">
-        {pageHelmet}
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center py-12">
-            <p className="text-muted-foreground mb-4">{error}</p>
-            <Button onClick={fetchApprovedPosts} variant="outline">
-              Réessayer
-            </Button>
-          </div>
-        </div>
+      <div className="public-site internal-page blog-page min-h-screen">
+        {pageHelmet}<SiteHeader />
+        <main className="blog-error site-container">
+          <Newspaper size={38} /><h1>Les actualités font une petite pause.</h1><p>{error}</p>
+          <Button onClick={fetchApprovedPosts}>Réessayer</Button>
+        </main>
+        <Footer />
       </div>
     );
   }
@@ -145,171 +126,96 @@ export default function Blog() {
   return (
     <>
       {pageHelmet}
-      <div className="min-h-screen bg-background">
-        {/* Navigation Bar */}
-        <header className="bg-white/95 backdrop-blur-sm border-b shadow-sm sticky top-0 z-50">
-          <div className="container mx-auto px-4 py-3 md:py-4">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center">
-                <Link to="/">
-                  <img 
-                    src="/ufsbd-logo-new.jpg" 
-                    alt="UFSBD Logo" 
-                    className="h-12 md:h-16 w-auto hover:scale-105 transition-transform cursor-pointer" 
-                  />
-                </Link>
-              </div>
-              {/* Desktop Navigation */}
-              <nav className="hidden md:flex items-center space-x-4">
-                <Button variant="ghost" asChild className="hover:text-primary transition-colors">
-                  <Link to="/">Accueil</Link>
-                </Button>
-                <Button variant="ghost" asChild className="hover:text-primary transition-colors bg-blue-100 text-blue-700">
-                  <Link to="/blog">Actualités</Link>
-                </Button>
-                <Button variant="ghost" asChild className="hover:text-primary transition-colors">
-                  <Link to="/organigramme">Organisation</Link>
-                </Button>
-                <Button variant="ghost" asChild className="hover:text-primary transition-colors">
-                  <Link to="/contact">Contact</Link>
-                </Button>
-                {user ? (
-                  <div className="hidden md:flex items-center space-x-4">
-                    {(userRole === 'admin' || userRole === 'author') && (
-                      <Button variant="ghost" asChild className="hover:text-primary transition-colors">
-                        <Link to="/submit">Écrire un article</Link>
-                      </Button>
-                    )}
-                    {userRole === 'admin' && (
-                      <Button variant="ghost" asChild className="hover:text-primary transition-colors">
-                        <Link to="/admin">Admin</Link>
-                      </Button>
-                    )}
-                    <span className="text-sm text-muted-foreground">Bonjour {user.email}</span>
-                    <Button variant="outline" onClick={signOut} className="hover:bg-primary hover:text-white transition-colors">
-                      Déconnexion
-                    </Button>
-                  </div>
-                ) : (
-                  <Button asChild className="btn-primary hidden md:inline-flex">
-                    <Link to="/auth">Connexion</Link>
-                  </Button>
-                )}
-              </nav>
-              {/* Mobile Navigation */}
-              <div className="md:hidden">
-                <Button variant="ghost" size="icon" onClick={() => setShowMobileNav(!showMobileNav)}>
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                  </svg>
-                </Button>
-              </div>
-            </div>
-            {/* Mobile Menu */}
-            {showMobileNav && (
-              <div className="md:hidden mt-4 pb-4 border-t border-gray-200">
-                <div className="flex flex-col space-y-3 pt-4">
-                  <Button variant="ghost" asChild className="justify-start hover:text-primary transition-colors">
-                    <Link to="/" onClick={() => setShowMobileNav(false)}>Accueil</Link>
-                  </Button>
-                  <Button variant="ghost" asChild className="justify-start hover:text-primary transition-colors bg-blue-100 text-blue-700">
-                    <Link to="/blog" onClick={() => setShowMobileNav(false)}>Actualités</Link>
-                  </Button>
-                  <Button variant="ghost" asChild className="justify-start hover:text-primary transition-colors">
-                    <Link to="/organigramme" onClick={() => setShowMobileNav(false)}>Organisation</Link>
-                  </Button>
-                  <Button variant="ghost" asChild className="justify-start hover:text-primary transition-colors">
-                    <Link to="/contact" onClick={() => setShowMobileNav(false)}>Contact</Link>
-                  </Button>
-                  {user ? (
-                    <>
-                      {(userRole === 'admin' || userRole === 'author') && (
-                        <Button variant="ghost" asChild className="justify-start hover:text-primary transition-colors">
-                          <Link to="/submit" onClick={() => setShowMobileNav(false)}>Écrire un article</Link>
-                        </Button>
-                      )}
-                      {userRole === 'admin' && (
-                        <Button variant="ghost" asChild className="justify-start hover:text-primary transition-colors">
-                          <Link to="/admin" onClick={() => setShowMobileNav(false)}>Admin</Link>
-                        </Button>
-                      )}
-                      <div className="px-3 py-2 text-sm text-muted-foreground border-t">
-                        Bonjour {user.email}
-                      </div>
-                      <Button variant="outline" onClick={() => { signOut(); setShowMobileNav(false); }} className="mx-3">
-                        Déconnexion
-                      </Button>
-                    </>
-                  ) : (
-                    <Button asChild className="btn-primary mx-3">
-                      <Link to="/auth" onClick={() => setShowMobileNav(false)}>Connexion</Link>
-                    </Button>
-                  )}
+      <div className="public-site internal-page blog-page">
+        <SiteHeader />
+        <main>
+          <section className="blog-editorial-hero overflow-hidden">
+            <FadeInView className="site-container">
+              <nav className="breadcrumb" aria-label="Fil d’Ariane"><Link to="/">Accueil</Link><span>/</span><span>Actualités</span></nav>
+              <div className="blog-editorial-hero__grid">
+                <div>
+                  <p className="eyebrow"><span />Le journal de l’UFSBD Hérault</p>
+                  <h1>Comprendre aujourd’hui, <em>mieux prévenir</em> demain.</h1>
+                </div>
+                <div className="blog-editorial-hero__aside">
+                  <p>Conseils pratiques, actualités de l’association et retours sur nos actions de terrain dans l’Hérault.</p>
+                  <div><strong>{posts.length}</strong><span>publication{posts.length > 1 ? 's' : ''}<br />à découvrir</span></div>
                 </div>
               </div>
-            )}
-          </div>
-        </header>
-        <div className="container mx-auto px-4 py-8">
-          {/* Breadcrumb */}
-          <nav className="flex justify-center mb-6">
-            <ol className="flex items-center space-x-2 text-muted-foreground">
-              <li>
-                <Link to="/" className="hover:text-primary transition-colors">
-                  Accueil
-                </Link>
-              </li>
-              <li className="text-muted-foreground">/</li>
-              <li className="text-primary font-medium">Actualités</li>
-            </ol>
-          </nav>
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold mb-4">Actualités UFSBD</h1>
-            <p className="text-xl text-muted-foreground">
-              Découvrez nos dernières actualités et articles sur la santé bucco-dentaire
-            </p>
-          </div>
-          {posts.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">Aucun article publié pour le moment.</p>
-            </div>
-          ) : (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {posts.map((post) => (
-                <Link key={post.id} to={`/blog/${post.id}`}>
-                  <Card className="h-full transition-all hover:shadow-lg hover:scale-105">
-                    {post.image && (
-                      <BulletproofBlogImage
-                        src={post.image}
-                        alt={post.title}
-                        title={post.title}
-                        postId={post.id}
-                        className="aspect-video overflow-hidden rounded-t-lg"
-                      />
-                    )}
-                    <CardHeader>
-                      <div className="flex justify-between items-start mb-2">
-                        <Badge variant="secondary">{post.category}</Badge>
-                        <span className="text-sm text-muted-foreground">
-                          {new Date(post.created_at).toLocaleDateString()}
-                        </span>
+            </FadeInView>
+          </section>
+
+          <AutoScrollTape
+            items={['Prévention', 'Conseils pratiques', 'Actions de terrain', 'Santé à chaque âge', 'Formation', 'Vie de l’association']}
+            direction="right"
+            tone="yellow"
+            label="Thématiques des actualités"
+          />
+
+          <section className="blog-index-section section-pad">
+            <div className="site-container">
+              <div className="blog-filter-row">
+                <div><p className="eyebrow"><span />À la une</p><h2>Nos dernières publications</h2></div>
+                <div className="blog-filters" role="tablist" aria-label="Filtrer les articles par catégorie">
+                  {categories.map((category) => (
+                    <button
+                      key={category}
+                      type="button"
+                      role="tab"
+                      aria-selected={activeCategory === category}
+                      className={activeCategory === category ? 'is-active' : ''}
+                      onClick={() => setActiveCategory(category)}
+                    >
+                      {category}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {!featuredPost ? (
+                <div className="blog-empty"><Newspaper size={34} /><h3>Aucun article dans cette catégorie</h3><p>Choisissez une autre thématique pour poursuivre votre lecture.</p></div>
+              ) : (
+                <>
+                  <FadeInView delay={0}>
+                    <Link to={`/blog/${featuredPost.id}`} className="featured-article transition-transform duration-500 hover:-translate-y-1 hover:shadow-2xl group">
+                      <div className="featured-article__media overflow-hidden">
+                        {featuredPost.image ? (
+                          <BulletproofBlogImage src={featuredPost.image} alt={featuredPost.title} title={featuredPost.title} postId={featuredPost.id} className="featured-article__image transition-transform duration-700 group-hover:scale-105" />
+                        ) : <div className="article-image-placeholder transition-transform duration-700 group-hover:scale-105"><Newspaper size={42} /></div>}
                       </div>
-                      <CardTitle className="line-clamp-2">{post.title}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="prose max-w-none">
-                        {(() => {
-                          const cleanContent = stripImagesFromContent(post.content);
-                          return <MarkdownRenderer content={cleanContent.substring(0, 200) + (cleanContent.length > 200 ? '...' : '')} />;
-                        })()}
+                      <div className="featured-article__content">
+                        <div className="article-meta"><span>{featuredPost.category}</span><time>{formatDate(featuredPost.created_at)}</time></div>
+                        <h2>{featuredPost.title}</h2>
+                        <p>{createExcerpt(featuredPost.content, 260)}</p>
+                        <span className="article-read-link">Lire l’article <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" /></span>
                       </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
+                    </Link>
+                  </FadeInView>
+
+                  {remainingPosts.length > 0 && (
+                    <FadeInView className="editorial-article-grid">
+                      {remainingPosts.map((post) => (
+                        <Link to={`/blog/${post.id}`} key={post.id} className="editorial-article-card h-full transition-transform duration-500 hover:-translate-y-1 hover:shadow-xl group bg-white block">
+                          <div className="editorial-article-card__media overflow-hidden">
+                            {post.image ? (
+                              <BulletproofBlogImage src={post.image} alt={post.title} title={post.title} postId={post.id} className="editorial-article-card__image transition-transform duration-700 group-hover:scale-105" />
+                            ) : <div className="article-image-placeholder transition-transform duration-700 group-hover:scale-105"><Newspaper size={32} /></div>}
+                          </div>
+                          <div className="editorial-article-card__content">
+                            <div className="article-meta"><span>{post.category}</span><time>{formatDate(post.created_at)}</time></div>
+                            <h3>{post.title}</h3>
+                            <p>{createExcerpt(post.content)}</p>
+                            <span className="article-read-link"><Clock3 size={15} />Lire la suite <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" /></span>
+                          </div>
+                        </Link>
+                      ))}
+                    </FadeInView>
+                  )}
+                </>
+              )}
             </div>
-          )}
-        </div>
+          </section>
+        </main>
         <Footer />
       </div>
     </>

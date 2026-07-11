@@ -223,7 +223,7 @@ export default function PendingPosts() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="admin-page admin-posts-page space-y-6">
       <div>
         <h1 className="text-3xl font-bold">Pending Posts</h1>
         <p className="text-muted-foreground">Review and approve blog posts</p>

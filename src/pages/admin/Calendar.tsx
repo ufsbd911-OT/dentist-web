@@ -217,7 +217,7 @@ export default function Calendar() {
         <meta name="description" content="Gestion du calendrier et des événements pour UFSBD." />
       </Helmet>
       
-      <div className="space-y-6">
+      <div className="admin-page admin-calendar-page space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
@@ -567,4 +567,4 @@ export default function Calendar() {
       </div>
     </>
   );
-} 
+}

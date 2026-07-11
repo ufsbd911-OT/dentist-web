@@ -178,7 +178,7 @@ export default function GalleryInspector() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50/30 to-white p-8">
+    <div className="admin-page admin-inspector-page min-h-screen p-0">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-4">Gallery Inspector</h1>
