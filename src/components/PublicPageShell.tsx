@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { ArrowRight, Check } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { Footer } from '@/components/Footer';
 import { SiteHeader } from '@/components/SiteHeader';
 import { AutoScrollTape } from '@/components/AutoScrollTape';
@@ -36,16 +37,24 @@ export function PublicPageShell({ title, metaTitle, description, canonicalPath, 
       <div className="public-site internal-page">
         <SiteHeader />
         <main>
-          <section className="internal-hero">
-            <div className="site-container">
-              <nav aria-label="Fil d’Ariane" className="breadcrumb">
-                <Link to="/">Accueil</Link><span>/</span><span>{title}</span>
-              </nav>
-              <p className="eyebrow"><span />UFSBD Hérault</p>
-              <h1>{title}</h1>
-              <p>{intro}</p>
-            </div>
-          </section>
+          <FadeInView delay={0}>
+            <section className="internal-hero">
+              <div className="site-container">
+                <nav aria-label="Fil d’Ariane" className="breadcrumb">
+                  <Link to="/">Accueil</Link><span>/</span><span>{title}</span>
+                </nav>
+                <p className="eyebrow"><span />UFSBD Hérault</p>
+                <motion.h1 
+                  initial={{ opacity: 0, y: 20, filter: 'blur(10px)' }}
+                  animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                  transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+                >
+                  {title}
+                </motion.h1>
+                <p>{intro}</p>
+              </div>
+            </section>
+          </FadeInView>
 
           <AutoScrollTape
             items={['Informer', 'Prévenir', 'Former', 'Accompagner', 'Agir au plus près des publics']}
@@ -64,23 +73,40 @@ export function PublicPageShell({ title, metaTitle, description, canonicalPath, 
                   <Link to="/contact" className="button button--navy transition-transform hover:scale-105">Parler à notre équipe <ArrowRight size={17} /></Link>
                 </aside>
               </FadeInView>
-              <FadeInView className="internal-sections">
+              <div className="internal-sections">
                 {sections.map((section, index) => (
-                  <article key={section.heading} className="internal-section-card transition-all duration-500 hover:-translate-y-1 hover:shadow-lg bg-white border border-transparent hover:border-slate-100 rounded-xl">
-                    <span className="internal-section-card__number">0{index + 1}</span>
-                    <h2>{section.heading}</h2>
-                    {section.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
-                    {section.bullets && (
-                      <ul>{section.bullets.map((bullet) => (
-                        <li key={bullet} className="transition-colors hover:text-slate-900 group">
-                          <Check size={17} className="transition-transform group-hover:scale-125 text-blue-500" />
-                          {bullet}
-                        </li>
-                      ))}</ul>
-                    )}
-                  </article>
+                  <FadeInView key={section.heading} delay={index * 150}>
+                    <motion.article 
+                      whileHover={{ scale: 1.02, y: -5 }}
+                      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                      className="internal-section-card p-10 md:p-12 rounded-3xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-2xl border border-slate-100/50 bg-gradient-to-b from-white to-slate-50/50 relative overflow-hidden group cursor-default"
+                    >
+                      <div className="absolute -top-20 -right-20 w-64 h-64 bg-cyan-100/50 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+                      
+                      <h2 className="text-3xl font-bold text-slate-800 mb-6">{section.heading}</h2>
+                      
+                      <div className="space-y-4 mb-8">
+                        {section.paragraphs.map((paragraph) => (
+                          <p key={paragraph} className="text-slate-600 text-lg leading-relaxed">{paragraph}</p>
+                        ))}
+                      </div>
+                      
+                      {section.bullets && (
+                        <ul className="space-y-3">
+                          {section.bullets.map((bullet) => (
+                            <li key={bullet} className="flex items-start transition-colors hover:text-slate-900 group/bullet text-slate-700">
+                              <span className="mt-1 mr-3 bg-cyan-100 p-1 rounded-full group-hover/bullet:bg-cyan-200 transition-colors">
+                                <Check size={14} className="text-cyan-700" />
+                              </span>
+                              <span className="leading-relaxed">{bullet}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </motion.article>
+                  </FadeInView>
                 ))}
-              </FadeInView>
+              </div>
             </div>
           </section>
         </main>

@@ -20,13 +20,25 @@ const navItems = [
 export function SiteHeader({ overlay = false }: SiteHeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [isHidden, setIsHidden] = useState(false);
   const { pathname } = useLocation();
   const { user, userRole, signOut } = useAuth();
   const isTransparent = overlay && !scrolled && !menuOpen;
   const canManage = userRole === 'admin' || hasAdminRole(userRole) || checkAdminAccess(user?.email);
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 24);
+    let lastScrollY = window.scrollY;
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      setScrolled(currentScrollY > 24);
+      
+      if (currentScrollY > lastScrollY && currentScrollY > 92) {
+        setIsHidden(true);
+      } else if (currentScrollY < lastScrollY) {
+        setIsHidden(false);
+      }
+      lastScrollY = currentScrollY;
+    };
     handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
@@ -54,7 +66,11 @@ export function SiteHeader({ overlay = false }: SiteHeaderProps) {
   }, [menuOpen]);
 
   return (
-    <header className={`site-header ${isTransparent ? 'site-header--overlay' : 'site-header--solid'}`}>
+    <>
+      <header 
+        className={`site-header ${isTransparent ? 'site-header--overlay' : 'site-header--solid'}`}
+        style={{ transform: isHidden ? 'translateY(-100%)' : 'translateY(0)' }}
+      >
       <div className="site-container site-header__inner">
         <Link to="/" className="site-brand" aria-label="UFSBD Hérault — Accueil">
           <img className="site-brand__logo" src="/ufsbd-logo-new.jpg" alt="UFSBD Hérault 34" />
@@ -65,7 +81,7 @@ export function SiteHeader({ overlay = false }: SiteHeaderProps) {
             <Link
               key={item.path}
               to={item.path}
-              className={pathname === item.path || pathname.startsWith(`${item.path}/`) ? 'is-active' : undefined}
+              className={`gold-underline ${pathname === item.path || pathname.startsWith(`${item.path}/`) ? 'is-active' : ''}`}
               aria-current={pathname === item.path || pathname.startsWith(`${item.path}/`) ? 'page' : undefined}
             >
               {item.label}
@@ -97,18 +113,19 @@ export function SiteHeader({ overlay = false }: SiteHeaderProps) {
           </button>
         </div>
       </div>
+    </header>
 
-      {menuOpen && (
+    {menuOpen && (
         <div className="mobile-nav-wrap">
           <button className="mobile-nav-backdrop" onClick={() => setMenuOpen(false)} aria-label="Fermer le menu" />
           <nav id="mobile-navigation" className="mobile-nav" aria-label="Navigation mobile">
             <p className="mobile-nav__eyebrow">Explorer l’UFSBD Hérault</p>
-            {navItems.map((item, index) => (
+            {navItems.map((item) => (
               <Link key={item.path} to={item.path}>
-                <span>0{index + 1}</span>{item.label}
+                {item.label}
               </Link>
             ))}
-            {(userRole === 'admin' || userRole === 'author') && <Link to="/submit"><span>07</span>Écrire un article</Link>}
+            {(userRole === 'admin' || userRole === 'author') && <Link to="/submit">Écrire un article</Link>}
             <div className="mobile-nav__actions">
               {user ? (
                 <button className="button button--outline-light" onClick={signOut}>Déconnexion</button>
@@ -119,6 +136,6 @@ export function SiteHeader({ overlay = false }: SiteHeaderProps) {
           </nav>
         </div>
       )}
-    </header>
+    </>
   );
 }

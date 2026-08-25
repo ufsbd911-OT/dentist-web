@@ -193,23 +193,25 @@ export default function Blog() {
                   </FadeInView>
 
                   {remainingPosts.length > 0 && (
-                    <FadeInView className="editorial-article-grid">
-                      {remainingPosts.map((post) => (
-                        <Link to={`/blog/${post.id}`} key={post.id} className="editorial-article-card h-full transition-transform duration-500 hover:-translate-y-1 hover:shadow-xl group bg-white block">
-                          <div className="editorial-article-card__media overflow-hidden">
-                            {post.image ? (
-                              <BulletproofBlogImage src={post.image} alt={post.title} title={post.title} postId={post.id} className="editorial-article-card__image transition-transform duration-700 group-hover:scale-105" />
-                            ) : <div className="article-image-placeholder transition-transform duration-700 group-hover:scale-105"><Newspaper size={32} /></div>}
-                          </div>
-                          <div className="editorial-article-card__content">
-                            <div className="article-meta"><span>{post.category}</span><time>{formatDate(post.created_at)}</time></div>
-                            <h3>{post.title}</h3>
-                            <p>{createExcerpt(post.content)}</p>
-                            <span className="article-read-link"><Clock3 size={15} />Lire la suite <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" /></span>
-                          </div>
-                        </Link>
+                    <div className="editorial-article-grid">
+                      {remainingPosts.map((post, index) => (
+                        <FadeInView key={post.id} delay={index * 150}>
+                          <Link to={`/blog/${post.id}`} className="editorial-article-card h-full transition-transform duration-500 hover:-translate-y-1 hover:shadow-xl group bg-white block">
+                            <div className="editorial-article-card__media overflow-hidden">
+                              {post.image ? (
+                                <BulletproofBlogImage src={post.image} alt={post.title} title={post.title} postId={post.id} className="editorial-article-card__image transition-transform duration-700 group-hover:scale-105" />
+                              ) : <div className="article-image-placeholder transition-transform duration-700 group-hover:scale-105"><Newspaper size={32} /></div>}
+                            </div>
+                            <div className="editorial-article-card__content">
+                              <div className="article-meta"><span>{post.category}</span><time>{formatDate(post.created_at)}</time></div>
+                              <h3>{post.title}</h3>
+                              <p>{createExcerpt(post.content)}</p>
+                              <span className="article-read-link"><Clock3 size={15} />Lire la suite <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" /></span>
+                            </div>
+                          </Link>
+                        </FadeInView>
                       ))}
-                    </FadeInView>
+                    </div>
                   )}
                 </>
               )}

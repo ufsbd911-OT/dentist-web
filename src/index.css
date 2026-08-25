@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&family=Yellowtail&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -109,6 +109,7 @@ All colors MUST be HSL.
     font-family: 'Inter', system-ui, sans-serif;
     font-feature-settings: 'kern';
     -webkit-font-smoothing: antialiased;
+    line-height: 1.72;
   }
 
   html {
@@ -276,6 +277,8 @@ All colors MUST be HSL.
 .public-site h2,
 .public-site h3 {
   text-wrap: balance;
+  line-height: 1.08;
+  letter-spacing: 0;
 }
 
 .public-site h2 {
@@ -620,10 +623,11 @@ All colors MUST be HSL.
   align-items: center;
   justify-content: center;
   gap: 12px;
-  border-radius: 8px;
-  padding: 0 25px;
-  font-weight: 700;
-  font-size: .94rem;
+  border-radius: 9999px; /* Pill shape */
+  padding: 1rem 2.5rem; /* Generous padding */
+  font-weight: 600; /* Inter 600 */
+  font-size: 1rem;
+  font-family: 'Inter', sans-serif;
   transition: all .3s cubic-bezier(.2, .7, .2, 1);
   position: relative;
   overflow: hidden;
@@ -640,18 +644,17 @@ All colors MUST be HSL.
 }
 
 .button:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px); /* Subtle lift */
+  /* Remove heavy box shadow for premium aesthetic */
 }
 
 .button:active {
-  transform: translateY(-1px);
+  transform: translateY(0px);
 }
 
 .button--cyan {
   background: var(--ufsbd-cyan);
   color: #032847;
-  box-shadow: 0 4px 15px rgba(23, 183, 209, 0.2);
 }
 
 .button--cyan::before {
@@ -660,7 +663,6 @@ All colors MUST be HSL.
 
 .button--cyan:hover {
   background: #3dc7e0;
-  box-shadow: 0 12px 30px rgba(23, 183, 209, 0.35);
 }
 
 .button--cyan:hover::before {
@@ -670,7 +672,6 @@ All colors MUST be HSL.
 .button--navy {
   background: var(--ufsbd-navy);
   color: white;
-  box-shadow: 0 4px 15px rgba(11, 79, 134, 0.2);
 }
 
 .button--navy::before {
@@ -679,7 +680,6 @@ All colors MUST be HSL.
 
 .button--navy:hover {
   background: var(--ufsbd-blue);
-  box-shadow: 0 12px 30px rgba(11, 79, 134, 0.35);
 }
 
 .button--navy:hover::before {
@@ -689,23 +689,22 @@ All colors MUST be HSL.
 .button--light {
   background: white;
   color: var(--ufsbd-navy);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
 }
 
 .button--light:hover {
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+  /* No heavy shadow, just the subtle lift from base button */
 }
 
 .button--outline-light {
   border: 1px solid rgba(255, 255, 255, .58);
   color: white;
   backdrop-filter: blur(4px);
+  background: transparent;
 }
 
 .button--outline-light:hover {
   border-color: white;
   background: rgba(255, 255, 255, .12);
-  box-shadow: 0 10px 25px rgba(255, 255, 255, 0.15);
 }
 
 .home-hero {
@@ -1729,6 +1728,11 @@ All colors MUST be HSL.
 
   .hero-rail {
     overflow-x: auto;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  .hero-rail::-webkit-scrollbar {
+    display: none;
   }
 
   .hero-rail__inner {
@@ -3684,4 +3688,134 @@ body[data-surface="public"]>#root>.min-h-screen:not(.public-site) h3 {
 
 .pause-on-hover:hover .animate-tape-scroll {
   animation-play-state: paused;
+}
+
+/* -------------------------------------------------------------
+ * THE PORTERS: PREMIUM B2B DESIGN EXTENSION
+ * ------------------------------------------------------------- */
+
+/* Entrance Animation (.reveal) */
+.reveal {
+  opacity: 0;
+  transform: translate3d(0, 30px, 0) scale(0.985);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+}
+
+/* Micro-Interaction: Gold Underline */
+.gold-underline {
+  position: relative;
+  display: inline-block;
+  text-decoration: none;
+}
+
+.gold-underline::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 0;
+  height: 2px;
+  background-color: #BE9E58; /* Gold Accent */
+  transition: width 0.3s ease;
+}
+
+.gold-underline:hover::after {
+  width: 100%;
+}
+
+/* Premium Card Overrides */
+.process-card, .pathway-card, .commitment-card, .boot-card, .card {
+  border-radius: 16px !important;
+  border: 1px solid rgba(18, 29, 59, 0.09) !important;
+  box-shadow: 0 1px 0 rgba(18, 29, 59, 0.03) !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  background-color: #FFFFFF;
+}
+
+.process-card:hover, .pathway-card:hover, .commitment-card:hover, .boot-card:hover, .card:hover {
+  transform: translateY(-3px) !important;
+  border-color: rgba(200, 162, 74, 0.38) !important;
+  box-shadow: 0 18px 44px rgba(18, 29, 59, 0.1) !important;
+}
+
+/* The Proof Layer (Floating Chips in Hero) */
+.hero-proof {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 32px;
+  position: relative;
+  z-index: 10;
+}
+
+.hero-proof__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(11, 16, 32, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 9999px;
+  padding: 8px 20px;
+  color: #FFFFFF;
+  animation: float-chip 4s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.hero-proof__item:hover {
+  animation-play-state: paused;
+}
+
+.hero-proof__item:nth-child(2) {
+  animation-delay: 1s;
+}
+
+.hero-proof__item:nth-child(3) {
+  animation-delay: 2s;
+}
+
+.hero-proof__item strong {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #BE9E58; /* Gold Accent */
+}
+
+.hero-proof__item span {
+  font-size: 0.85rem;
+  line-height: 1.2;
+  font-weight: 500;
+}
+
+/* Testimonial Chip Fade */
+.testimonial-chip {
+  min-width: 280px;
+  justify-content: center;
+}
+.testimonial-content {
+  animation: fade-switch 5s infinite;
+}
+
+@keyframes float-chip {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-3px); }
+}
+
+@keyframes fade-switch {
+  0%, 40% { opacity: 1; }
+  50%, 90% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-proof__item { animation: none; }
+  .testimonial-content { animation: none; }
+  .reveal { transition: none; transform: none; opacity: 1; }
 }
